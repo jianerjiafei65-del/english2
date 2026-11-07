@@ -354,6 +354,39 @@
     render();
   };
 
+  // カード上にスタンプを出す（覚えた / 外した）
+  const showStamp = (learned) => {
+    el.cardArea.querySelector(".stamp")?.remove();
+    const s = document.createElement("div");
+    s.className = "stamp" + (learned ? "" : " is-off");
+    s.setAttribute("aria-hidden", "true");
+    s.innerHTML = learned
+      ? '<svg><use href="#i-check"/></svg><span>覚えた！</span>'
+      : '<span class="stamp-x">×</span><span>チェックを外しました</span>';
+    el.cardArea.appendChild(s);
+    setTimeout(() => s.remove(), 900);
+    try { navigator.vibrate?.(learned ? 18 : [8, 40, 8]); } catch { /* 対応していない端末は無視 */ }
+  };
+
+  // 今のカードの「覚えた」を変える（mode: "learn" | "unlearn" | "toggle"）
+  const setCurrentLearned = (mode) => {
+    const w = currentWord(); if (!w) return false;
+    const has = state.learned.has(w.en);
+    const want = mode === "toggle" ? !has : mode === "learn";
+    if (want !== has) toggleLearned(w.en);
+    showStamp(want);
+    return want;
+  };
+
+  // 上スワイプ：覚えたにして、少し見せてから次の単語へ
+  let advanceTimer = null;
+  const learnAndNext = () => {
+    if (!currentWord()) return;
+    setCurrentLearned("learn");
+    clearTimeout(advanceTimer);
+    advanceTimer = setTimeout(() => move(1), 480);
+  };
+
   // ===== ページめくり =====
   const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
   let turnLayer = null;
@@ -515,7 +548,16 @@
   el.posFilter.addEventListener("change", (e) => { state.pos = e.target.value; resetFilterPosition(); });
   el.learnedFilter.addEventListener("change", (e) => { state.learnedFilter = e.target.value; resetFilterPosition(); });
 
-  el.card.addEventListener("click", flip);
+  // タップでめくる／ダブルタップで「覚えた」切り替え
+  let tapTimer = null;
+  el.card.addEventListener("click", () => {
+    if (tapTimer) {
+      clearTimeout(tapTimer); tapTimer = null;
+      setCurrentLearned("toggle");
+      return;
+    }
+    tapTimer = setTimeout(() => { tapTimer = null; flip(); }, 230);
+  });
   el.flipBtn.addEventListener("click", flip);
   el.prevBtn.addEventListener("click", () => move(-1));
   el.nextBtn.addEventListener("click", () => move(1));
@@ -541,10 +583,7 @@
     state.slow = !state.slow; save(); renderAudio();
     const w = currentWord(); if (w) speak(w.en, el.speakBtn); // 速さを試しに聞かせる
   });
-  el.learnBtn.addEventListener("click", () => {
-    const w = currentWord(); if (!w) return;
-    toggleLearned(w.en);
-  });
+  el.learnBtn.addEventListener("click", () => setCurrentLearned("toggle"));
   // リセットは2回押しで確定（誤操作防止）
   let resetTimer = null;
   const resetLabel = el.resetLearnedBtn.textContent;
@@ -576,7 +615,9 @@
   // キーボード操作（PC 用）
   document.addEventListener("keydown", (e) => {
     if (state.view !== "card" || e.target.tagName === "SELECT") return;
-    if (e.key === "ArrowRight") move(1);
+    if (e.key === "ArrowUp") { e.preventDefault(); learnAndNext(); }
+    else if (e.key === "ArrowDown") { e.preventDefault(); setCurrentLearned("unlearn"); }
+    else if (e.key === "ArrowRight") move(1);
     else if (e.key === "ArrowLeft") move(-1);
     else if (e.key === " " || e.key === "Enter") { e.preventDefault(); flip(); }
     else if (e.key.toLowerCase() === "s") { const w = currentWord(); if (w) speak(w.en, el.speakBtn); }
@@ -594,6 +635,10 @@
     if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
       swiped = true;
       move(dx < 0 ? 1 : -1);
+    } else if (Math.abs(dy) > 60 && Math.abs(dy) > Math.abs(dx) * 1.5) {
+      // 上スワイプ＝覚えた＆次へ、下スワイプ＝チェックを外す
+      swiped = true;
+      if (dy < 0) learnAndNext(); else setCurrentLearned("unlearn");
     }
   });
   // スワイプ直後のタップ（カードめくり）を無効化
