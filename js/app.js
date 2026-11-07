@@ -196,6 +196,13 @@
     el.cardView.hidden = state.view !== "card";
     el.listView.hidden = state.view !== "list";
     el.sceneChips.querySelectorAll(".chip").forEach((c) => {
+      // シーンの単語をすべて覚えたら ✓ を付ける
+      if (c.dataset.scene !== "all") {
+        const words = WORDS.filter((w) => w.scene === c.dataset.scene);
+        const complete = words.length > 0 && words.every((w) => state.learned.has(w.en));
+        c.classList.toggle("is-complete", complete);
+        c.textContent = c.dataset.scene + (complete ? " ✓" : "");
+      }
       const on = c.dataset.scene === state.scene;
       c.classList.toggle("is-active", on);
       c.setAttribute("aria-pressed", on);
@@ -321,7 +328,12 @@
       sp.setAttribute("aria-label", `${w.en} の発音を聞く`);
       sp.addEventListener("click", () => speak(w.en, sp));
 
-      li.append(check, texts, sp);
+      const badge = document.createElement("span");
+      badge.className = "learned-badge";
+      badge.innerHTML = '<svg aria-hidden="true"><use href="#i-check"/></svg>覚えた';
+      badge.hidden = !learned;
+
+      li.append(check, texts, badge, sp);
       frag.appendChild(li);
     });
     el.wordList.appendChild(frag);

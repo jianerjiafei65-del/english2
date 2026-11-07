@@ -219,7 +219,7 @@ button:focus-visible, select:focus-visible, .card:focus-visible {
 }
 .card-back { transform: rotateY(180deg); }
 
-.card-meta { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.card-meta { display: flex; justify-content: flex-start; align-items: center; gap: 10px; padding-right: 84px; min-height: 26px; }
 .scene-tag {
   font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.12em;
   color: var(--muted); text-transform: uppercase;
@@ -245,6 +245,24 @@ button:focus-visible, select:focus-visible, .card:focus-visible {
 }
 .learned-mark svg { width: 16px; height: 16px; }
 .card.is-learned .learned-mark, .page-snap.is-learned .learned-mark { display: inline-flex; }
+
+/* 覚えた単語のはんこ風マーク */
+.learned-seal {
+  position: absolute; top: 14px; right: 16px; z-index: 2;
+  width: 76px; height: 76px; border-radius: 50%;
+  display: none; place-content: center; justify-items: center; gap: 0;
+  color: var(--accent); border: 2.5px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 7%, var(--surface));
+  box-shadow: inset 0 0 0 3px var(--surface), inset 0 0 0 4.5px color-mix(in srgb, var(--accent) 55%, transparent);
+  transform: rotate(-14deg);
+  font-weight: 700; font-size: 0.82rem; letter-spacing: 0.08em; line-height: 1.2;
+  pointer-events: none;
+}
+.learned-seal svg { width: 26px; height: 26px; margin-bottom: 1px; }
+.card.is-learned .learned-seal, .page-snap.is-learned .learned-seal { display: grid; }
+.card.is-learned .card-face, .page-snap.is-learned .card-face {
+  box-shadow: var(--shadow), inset 0 0 0 2px color-mix(in srgb, var(--accent) 45%, transparent);
+}
 .card.no-anim { transition: none; }
 /* カードの上ではスワイプ操作を優先（ページのスクロールはカードの外で） */
 .card { touch-action: none; -webkit-user-select: none; user-select: none; }
@@ -407,6 +425,16 @@ button:focus-visible, select:focus-visible, .card:focus-visible {
 .word-ja { color: var(--muted); font-size: 0.88rem; }
 .word-pos { font-family: var(--font-body); font-size: 0.68rem; color: var(--muted); margin-left: 8px; font-weight: 400; letter-spacing: 0; }
 .word-item.is-learned .word-en { color: var(--muted); }
+.word-item { grid-template-columns: auto 1fr auto auto; }
+.learned-badge {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 3px 9px 3px 6px; border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent);
+  font-size: 0.72rem; font-weight: 700; white-space: nowrap;
+}
+.learned-badge svg { width: 14px; height: 14px; }
+.learned-badge[hidden] { display: none !important; }
+.chip.is-complete:not(.is-active) { border-color: var(--accent); color: var(--accent); }
 .masked { background: var(--soft); color: transparent; border-radius: 6px; cursor: pointer; user-select: none; }
 .masked .word-pos { color: transparent; }
 .speak-mini {
