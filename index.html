@@ -130,6 +130,18 @@
           <span class="switch" aria-hidden="true"></span>
           <span class="toggle-state" hidden>OFF</span>
         </button>
+        <div class="voice-row">
+          <label class="toggle-text" for="voiceSelect">
+            <span class="toggle-label">声の種類</span>
+            <span class="toggle-desc">聞き取りやすい声を選べます</span>
+          </label>
+          <div class="voice-controls">
+            <select id="voiceSelect" class="select" aria-label="読み上げの声">
+              <option value="auto">おすすめ（自動）</option>
+            </select>
+            <button id="voiceTestBtn" class="btn" aria-label="声を試しに聞く"><svg class="icon"><use href="#i-speaker"/></svg><span>試す</span></button>
+          </div>
+        </div>
         <button id="slowBtn" class="toggle" aria-pressed="false">
           <span class="toggle-text">
             <span class="toggle-label">ゆっくり再生</span>

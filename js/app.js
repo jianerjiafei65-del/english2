@@ -14,6 +14,7 @@
     listMode: saved.listMode || "both",   // en | ja | both
     autoSpeak: !!saved.autoSpeak,         // カード表示時に自動で読み上げ
     slow: !!saved.slow,                   // ゆっくり読み上げ
+    voiceURI: saved.voiceURI || "auto",   // 選んだ声（auto = おすすめを自動で選ぶ）
     pos: saved.pos || "all",
     scene: saved.scene || "all",
     learnedFilter: saved.learnedFilter || "all",
@@ -27,7 +28,7 @@
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         view: state.view, lang: state.lang, listMode: state.listMode,
-        autoSpeak: state.autoSpeak, slow: state.slow,
+        autoSpeak: state.autoSpeak, slow: state.slow, voiceURI: state.voiceURI,
         pos: state.pos, scene: state.scene, learnedFilter: state.learnedFilter, learned: [...state.learned],
       }));
     } catch { /* 保存できなくても動作は続ける */ }
@@ -50,6 +51,7 @@
     exampleEn: $("exampleEn"), exampleJa: $("exampleJa"),
     speakBtn: $("speakBtn"), speakExampleBtn: $("speakExampleBtn"), learnBtn: $("learnBtn"),
     autoSpeakBtn: $("autoSpeakBtn"), slowBtn: $("slowBtn"), toast: $("toast"),
+    voiceSelect: $("voiceSelect"), voiceTestBtn: $("voiceTestBtn"),
     prevBtn: $("prevBtn"), nextBtn: $("nextBtn"), flipBtn: $("flipBtn"),
     shuffleBtn: $("shuffleBtn"), resetOrderBtn: $("resetOrderBtn"),
     wordList: $("wordList"), emptyList: $("emptyList"),
@@ -58,16 +60,61 @@
 
   // ===== 発音読み上げ（Web Speech API） =====
   const canSpeak = "speechSynthesis" in window;
-  let englishVoice = null;
+  let englishVoices = [];   // 聞き取りやすい順に並べた英語の声
+  let englishVoice = null;  // 実際に使う声
+
+  // 声の「聞き取りやすさ」を点数にする（高品質な声を優先し、ふざけた声やこもった声は除く）
+  const scoreVoice = (v) => {
+    const name = `${v.name} ${v.voiceURI}`;
+    let s = 0;
+    if (/^en[-_]US/i.test(v.lang)) s += 4;
+    else if (/^en[-_](GB|AU|CA|IE|NZ)/i.test(v.lang)) s += 2;
+    if (/natural|neural/i.test(name)) s += 14;            // Edge / Windows の自然な声
+    if (/premium/i.test(name)) s += 12;                   // iPhone・Mac のプレミアム音声
+    if (/enhanced|拡張/i.test(name)) s += 10;              // iPhone・Mac の拡張音声
+    if (/google us english/i.test(name)) s += 9;          // Chrome のはっきりした声
+    if (/online/i.test(name)) s += 6;
+    if (/\b(ava|samantha|allison|susan|zoe|evan|nathan|joelle|noelle|jenny|aria|guy|michelle|emma|brian|andrew|serena|daniel|karen|moira|tessa)\b/i.test(name)) s += 5;
+    if (/compact|espeak|novelty/i.test(name)) s -= 15;
+    if (/\b(albert|bad news|bahh|bells|boing|bubbles|cellos|good news|jester|organ|superstar|trinoids|whisper|wobble|zarvox|deranged|hysterical|grandma|grandpa|rocko|shelley|flo|eddy|reed|sandy|junior|ralph|fred|kathy)\b/i.test(name)) s -= 30;
+    return s;
+  };
+
   const pickVoice = () => {
     const voices = canSpeak ? speechSynthesis.getVoices() : [];
-    englishVoice =
-      voices.find((v) => v.lang === "en-US") ||
-      voices.find((v) => v.lang && v.lang.startsWith("en")) || null;
+    englishVoices = voices
+      .filter((v) => v.lang && /^en/i.test(v.lang))
+      .map((v) => ({ v, score: scoreVoice(v) }))
+      .filter((x) => x.score > -10)
+      .sort((a, b) => b.score - a.score)
+      .map((x) => x.v);
+    const chosen = state.voiceURI !== "auto" && englishVoices.find((v) => v.voiceURI === state.voiceURI);
+    englishVoice = chosen || englishVoices[0] || null;
+    renderVoiceSelect();
   };
+
+  const renderVoiceSelect = () => {
+    if (!el.voiceSelect) return;
+    const sel = el.voiceSelect;
+    sel.innerHTML = "";
+    const auto = document.createElement("option");
+    auto.value = "auto";
+    auto.textContent = englishVoices[0] ? `おすすめ（${englishVoices[0].name}）` : "おすすめ（自動）";
+    sel.appendChild(auto);
+    englishVoices.forEach((v) => {
+      const o = document.createElement("option");
+      o.value = v.voiceURI;
+      o.textContent = `${v.name}（${v.lang}）`;
+      sel.appendChild(o);
+    });
+    sel.value = englishVoices.some((v) => v.voiceURI === state.voiceURI) ? state.voiceURI : "auto";
+  };
+
   if (canSpeak) {
     pickVoice();
     speechSynthesis.addEventListener?.("voiceschanged", pickVoice);
+    // 一部のブラウザは声の一覧を遅れて返すので、少し待ってもう一度取得
+    setTimeout(pickVoice, 500);
   }
   let toastTimer = null;
   const showToast = (msg) => {
@@ -89,9 +136,13 @@
     if (!canSpeak) { showToast("このブラウザは読み上げに対応していません"); return; }
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = "en-US";
+    u.lang = englishVoice ? englishVoice.lang : "en-US";
     if (englishVoice) u.voice = englishVoice;
-    u.rate = state.slow ? 0.6 : 0.9;
+    // ハキハキ聞こえるように：ほどよい速さ・少し高めの声・最大音量
+    const isWord = !/\s/.test(text.trim());
+    u.rate = state.slow ? 0.65 : (isWord ? 0.8 : 0.88);
+    u.pitch = 1.08;
+    u.volume = 1;
     u.onstart = () => setSpeaking(btn);
     u.onend = () => setSpeaking(null);
     u.onerror = (e) => {
@@ -100,7 +151,11 @@
         showToast("音声を再生できませんでした。端末の音量やマナーモードを確認してください");
       }
     };
-    speechSynthesis.speak(u);
+    // cancel() の直後に speak() すると無視されるブラウザがあるので、少しだけ間をあける
+    setTimeout(() => {
+      speechSynthesis.resume?.();
+      speechSynthesis.speak(u);
+    }, 60);
   };
 
   const sceneLabel = (id) => id;
@@ -368,6 +423,13 @@
     showToast(state.autoSpeak ? "自動読み上げをONにしました" : "自動読み上げをOFFにしました");
     if (state.autoSpeak) autoSpeak("show");
   });
+  el.voiceSelect.addEventListener("change", (e) => {
+    state.voiceURI = e.target.value;
+    save();
+    pickVoice();
+    speak("Hello! Nice to meet you.", el.voiceTestBtn);
+  });
+  el.voiceTestBtn.addEventListener("click", () => speak("Hello! Nice to meet you.", el.voiceTestBtn));
   el.slowBtn.addEventListener("click", () => {
     state.slow = !state.slow; save(); renderAudio();
     const w = currentWord(); if (w) speak(w.en, el.speakBtn); // 速さを試しに聞かせる
@@ -398,7 +460,7 @@
   });
 
   if (!canSpeak) {
-    [el.speakBtn, el.speakExampleBtn, el.autoSpeakBtn, el.slowBtn].forEach((b) => {
+    [el.speakBtn, el.speakExampleBtn, el.autoSpeakBtn, el.slowBtn, el.voiceSelect, el.voiceTestBtn].forEach((b) => {
       b.disabled = true;
       b.title = "このブラウザは読み上げに対応していません";
     });

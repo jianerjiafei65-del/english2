@@ -296,6 +296,10 @@ button:focus-visible, select:focus-visible, .card:focus-visible {
 .toggle.is-on .switch { background: var(--accent); }
 .toggle.is-on .switch::after { transform: translateX(18px); }
 .toggle:disabled { opacity: 0.4; cursor: default; }
+.voice-row { display: grid; gap: 10px; padding: 12px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.voice-controls { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.voice-controls .select { min-width: 0; text-overflow: ellipsis; }
+.voice-controls .btn { min-height: 44px; padding: 0 14px; font-size: 0.85rem; }
 
 /* ===== 一覧 ===== */
 .list-hint { font-size: 0.75rem; color: var(--muted); text-align: center; margin: 10px 0 4px; }
