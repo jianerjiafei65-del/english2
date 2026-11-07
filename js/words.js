@@ -1,0 +1,61 @@
+// 中学生レベルの英単語データ
+// en: 英単語 / ja: 日本語訳 / pos: 品詞 / example: 例文 / exampleJa: 例文の訳
+const WORDS = [
+  // 名詞
+  { en: "apple", ja: "りんご", pos: "名詞", example: "I eat an apple every morning.", exampleJa: "私は毎朝りんごを食べます。" },
+  { en: "book", ja: "本", pos: "名詞", example: "This book is very interesting.", exampleJa: "この本はとてもおもしろい。" },
+  { en: "school", ja: "学校", pos: "名詞", example: "I go to school by bike.", exampleJa: "私は自転車で学校に行きます。" },
+  { en: "friend", ja: "友だち", pos: "名詞", example: "She is my best friend.", exampleJa: "彼女は私の親友です。" },
+  { en: "family", ja: "家族", pos: "名詞", example: "There are five people in my family.", exampleJa: "私の家族は5人です。" },
+  { en: "water", ja: "水", pos: "名詞", example: "Can I have some water?", exampleJa: "水をいただけますか？" },
+  { en: "morning", ja: "朝", pos: "名詞", example: "I get up at six in the morning.", exampleJa: "私は朝6時に起きます。" },
+  { en: "question", ja: "質問", pos: "名詞", example: "May I ask a question?", exampleJa: "質問してもいいですか？" },
+  { en: "library", ja: "図書館", pos: "名詞", example: "We studied in the library.", exampleJa: "私たちは図書館で勉強しました。" },
+  { en: "country", ja: "国", pos: "名詞", example: "Japan is a beautiful country.", exampleJa: "日本は美しい国です。" },
+  { en: "weather", ja: "天気", pos: "名詞", example: "The weather is nice today.", exampleJa: "今日は天気がいい。" },
+  { en: "station", ja: "駅", pos: "名詞", example: "The station is near my house.", exampleJa: "駅は私の家の近くにあります。" },
+  { en: "dream", ja: "夢", pos: "名詞", example: "My dream is to be a doctor.", exampleJa: "私の夢は医者になることです。" },
+  { en: "history", ja: "歴史", pos: "名詞", example: "I like history the best.", exampleJa: "私は歴史がいちばん好きです。" },
+  { en: "language", ja: "言語", pos: "名詞", example: "English is an international language.", exampleJa: "英語は国際的な言語です。" },
+
+  // 動詞
+  { en: "play", ja: "（スポーツ・楽器を）する、遊ぶ", pos: "動詞", example: "I play soccer after school.", exampleJa: "私は放課後サッカーをします。" },
+  { en: "study", ja: "勉強する", pos: "動詞", example: "I study English every day.", exampleJa: "私は毎日英語を勉強します。" },
+  { en: "eat", ja: "食べる", pos: "動詞", example: "Let's eat lunch together.", exampleJa: "いっしょに昼食を食べよう。" },
+  { en: "go", ja: "行く", pos: "動詞", example: "I want to go to Kyoto.", exampleJa: "私は京都に行きたい。" },
+  { en: "come", ja: "来る", pos: "動詞", example: "Please come to my house.", exampleJa: "私の家に来てください。" },
+  { en: "speak", ja: "話す", pos: "動詞", example: "Can you speak English?", exampleJa: "あなたは英語を話せますか？" },
+  { en: "write", ja: "書く", pos: "動詞", example: "I write a letter to my grandmother.", exampleJa: "私は祖母に手紙を書きます。" },
+  { en: "read", ja: "読む", pos: "動詞", example: "My father reads the newspaper.", exampleJa: "父は新聞を読みます。" },
+  { en: "listen", ja: "聞く", pos: "動詞", example: "I listen to music at night.", exampleJa: "私は夜に音楽を聞きます。" },
+  { en: "help", ja: "手伝う、助ける", pos: "動詞", example: "Can you help me?", exampleJa: "手伝ってくれますか？" },
+  { en: "buy", ja: "買う", pos: "動詞", example: "I bought a new bag yesterday.", exampleJa: "私は昨日新しいかばんを買いました。" },
+  { en: "use", ja: "使う", pos: "動詞", example: "May I use your pen?", exampleJa: "あなたのペンを使ってもいいですか？" },
+  { en: "visit", ja: "訪れる", pos: "動詞", example: "We visited the museum.", exampleJa: "私たちは博物館を訪れました。" },
+  { en: "understand", ja: "理解する", pos: "動詞", example: "I understand your feelings.", exampleJa: "あなたの気持ちはわかります。" },
+  { en: "remember", ja: "覚えている、思い出す", pos: "動詞", example: "I remember his name.", exampleJa: "私は彼の名前を覚えています。" },
+
+  // 形容詞
+  { en: "happy", ja: "幸せな、うれしい", pos: "形容詞", example: "I am happy to see you.", exampleJa: "あなたに会えてうれしい。" },
+  { en: "beautiful", ja: "美しい", pos: "形容詞", example: "The flowers are beautiful.", exampleJa: "その花は美しい。" },
+  { en: "important", ja: "大切な", pos: "形容詞", example: "Friends are important to me.", exampleJa: "友だちは私にとって大切です。" },
+  { en: "difficult", ja: "難しい", pos: "形容詞", example: "This question is difficult.", exampleJa: "この問題は難しい。" },
+  { en: "easy", ja: "簡単な", pos: "形容詞", example: "The test was easy.", exampleJa: "テストは簡単でした。" },
+  { en: "popular", ja: "人気のある", pos: "形容詞", example: "This song is popular in Japan.", exampleJa: "この歌は日本で人気があります。" },
+  { en: "famous", ja: "有名な", pos: "形容詞", example: "Mt. Fuji is famous all over the world.", exampleJa: "富士山は世界中で有名です。" },
+  { en: "busy", ja: "忙しい", pos: "形容詞", example: "I am busy today.", exampleJa: "私は今日忙しい。" },
+  { en: "tired", ja: "疲れた", pos: "形容詞", example: "I was tired after the game.", exampleJa: "試合の後、私は疲れていました。" },
+  { en: "kind", ja: "親切な", pos: "形容詞", example: "Thank you. You are very kind.", exampleJa: "ありがとう。とても親切ですね。" },
+  { en: "useful", ja: "役に立つ", pos: "形容詞", example: "This dictionary is useful.", exampleJa: "この辞書は役に立ちます。" },
+  { en: "different", ja: "違った、異なる", pos: "形容詞", example: "We have different ideas.", exampleJa: "私たちは異なる考えを持っています。" },
+
+  // 副詞
+  { en: "always", ja: "いつも", pos: "副詞", example: "He is always kind to everyone.", exampleJa: "彼はいつもみんなに親切です。" },
+  { en: "often", ja: "よく、しばしば", pos: "副詞", example: "I often go to the park.", exampleJa: "私はよく公園に行きます。" },
+  { en: "sometimes", ja: "ときどき", pos: "副詞", example: "I sometimes cook dinner.", exampleJa: "私はときどき夕食を作ります。" },
+  { en: "usually", ja: "ふだんは、たいてい", pos: "副詞", example: "I usually walk to school.", exampleJa: "私はたいてい歩いて学校に行きます。" },
+  { en: "together", ja: "いっしょに", pos: "副詞", example: "Let's sing together.", exampleJa: "いっしょに歌いましょう。" },
+  { en: "already", ja: "すでに、もう", pos: "副詞", example: "I have already finished my homework.", exampleJa: "私はもう宿題を終えました。" },
+  { en: "early", ja: "早く", pos: "副詞", example: "I got up early this morning.", exampleJa: "私は今朝早く起きました。" },
+  { en: "abroad", ja: "外国に（で）", pos: "副詞", example: "I want to study abroad.", exampleJa: "私は留学したい。" },
+];

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#4f6bed">
+  <title>中学英単語</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header">
+    <h1 class="title">中学英単語</h1>
+    <div class="tabs" role="tablist">
+      <button class="tab is-active" role="tab" data-view="card" aria-selected="true">カード</button>
+      <button class="tab" role="tab" data-view="list" aria-selected="false">一覧</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <!-- 共通の操作パネル -->
+    <section class="controls">
+      <div class="lang-switch" role="group" aria-label="表示言語の切替">
+        <button class="lang-btn is-active" data-lang="en">英単語</button>
+        <button class="lang-btn" data-lang="ja">翻訳</button>
+      </div>
+      <div class="filters">
+        <select id="posFilter" class="select" aria-label="品詞で絞り込み">
+          <option value="all">すべての品詞</option>
+        </select>
+        <select id="learnedFilter" class="select" aria-label="覚えた単語で絞り込み">
+          <option value="all">すべて</option>
+          <option value="unlearned">未習得のみ</option>
+          <option value="learned">覚えたのみ</option>
+        </select>
+      </div>
+      <div class="progress">
+        <div class="progress-text">覚えた単語：<strong id="learnedCount">0</strong> / <span id="totalCount">0</span></div>
+        <div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
+      </div>
+    </section>
+
+    <!-- カードモード -->
+    <section id="cardView" class="view">
+      <p id="position" class="position">1 / 50</p>
+
+      <div id="cardArea" class="card-area">
+        <div id="card" class="card" tabindex="0" aria-label="タップで答えを表示">
+          <div class="card-face card-front">
+            <span id="frontPos" class="pos-tag"></span>
+            <p id="frontText" class="card-word"></p>
+            <p class="hint">タップで答えを見る</p>
+          </div>
+          <div class="card-face card-back">
+            <span id="backPos" class="pos-tag"></span>
+            <p id="backText" class="card-word"></p>
+            <p id="backSub" class="card-sub"></p>
+            <div class="example">
+              <p id="exampleEn" class="example-en"></p>
+              <p id="exampleJa" class="example-ja"></p>
+            </div>
+          </div>
+        </div>
+        <p id="emptyCard" class="empty" hidden>条件に合う単語がありません</p>
+      </div>
+
+      <div class="card-actions">
+        <button id="speakBtn" class="btn btn-icon" aria-label="発音を聞く">🔊 発音</button>
+        <button id="learnBtn" class="btn btn-learn" aria-pressed="false">☐ 覚えた</button>
+      </div>
+
+      <div class="nav">
+        <button id="prevBtn" class="btn btn-nav" aria-label="前の単語">◀ 前へ</button>
+        <button id="flipBtn" class="btn btn-primary">答えを見る</button>
+        <button id="nextBtn" class="btn btn-nav" aria-label="次の単語">次へ ▶</button>
+      </div>
+      <div class="sub-actions">
+        <button id="shuffleBtn" class="btn btn-ghost">🔀 シャッフル</button>
+        <button id="resetOrderBtn" class="btn btn-ghost">↺ 元の順番</button>
+      </div>
+    </section>
+
+    <!-- 一覧モード -->
+    <section id="listView" class="view" hidden>
+      <div class="list-mode" role="group" aria-label="一覧の表示方法">
+        <button class="list-mode-btn" data-listmode="en">英語のみ</button>
+        <button class="list-mode-btn" data-listmode="ja">訳のみ</button>
+        <button class="list-mode-btn is-active" data-listmode="both">両方</button>
+      </div>
+      <p class="list-hint">隠れている部分はタップすると表示されます</p>
+      <ul id="wordList" class="word-list"></ul>
+      <p id="emptyList" class="empty" hidden>条件に合う単語がありません</p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <button id="resetLearnedBtn" class="btn btn-ghost btn-small">覚えた記録をリセット</button>
+  </footer>
+
+  <script src="js/words.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
