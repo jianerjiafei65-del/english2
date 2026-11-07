@@ -241,8 +241,10 @@
     el.learnBtn.setAttribute("aria-pressed", learned);
     el.learnBtn.querySelector(".btn-label").textContent = learned ? "覚えた！" : "覚えた";
 
-    el.prevBtn.disabled = state.index === 0;
-    el.nextBtn.disabled = state.index === list.length - 1;
+    // 端まで来てもとなりのシーン（またはリストの反対側）へつながるので、ボタンは押せたまま
+    const single = list.length <= 1 && state.scene === "all";
+    el.prevBtn.disabled = single;
+    el.nextBtn.disabled = single;
 
     if (anim) {
       el.card.classList.remove("slide-left", "slide-right");
@@ -417,16 +419,53 @@
     turnTimer = setTimeout(finishTurn, 700);
   };
 
+  // 選んだシーンのボタンを、ボタンの列の中央に寄せる
+  const centerActiveChip = (smooth) => {
+    const c = el.sceneChips;
+    const b = c.querySelector(".chip.is-active");
+    if (b) c.scrollTo({ left: b.offsetLeft - (c.clientWidth - b.offsetWidth) / 2, behavior: smooth ? "smooth" : "auto" });
+  };
+
+  // シーンの端まで来たら、となりのシーンへつなげる（最後のシーンの次は最初に戻る）
+  const crossScene = (step) => {
+    const start = SCENES.findIndex((s) => s.id === state.scene);
+    for (let k = 1; k <= SCENES.length; k++) {
+      const id = SCENES[(start + step * k + SCENES.length * k) % SCENES.length].id;
+      state.scene = id;
+      const list = filteredOrder();
+      if (list.length) return { list, wrapped: step > 0 ? start + k >= SCENES.length : start - k < 0 };
+    }
+    state.scene = SCENES[start].id;
+    return null;
+  };
+
   const move = (step) => {
-    const list = filteredOrder();
-    const next = state.index + step;
-    if (next < 0 || next >= list.length) return;
+    let list = filteredOrder();
+    let next = state.index + step;
+    let notice = "";
+    if (!list.length) return;
+    if (next < 0 || next >= list.length) {
+      if (state.scene === "all") {
+        // すべて表示のときは、最後の次は最初へ（最初の前は最後へ）
+        next = (next + list.length) % list.length;
+        notice = step > 0 ? "最初の単語に戻りました" : "最後の単語へ移動しました";
+      } else {
+        const moved = crossScene(step);
+        if (!moved) return;
+        list = moved.list;
+        next = step > 0 ? 0 : list.length - 1;
+        notice = `${step > 0 ? "次" : "前"}のシーン：${state.scene}` + (moved.wrapped && step > 0 ? "（最初のシーンに戻りました）" : "");
+        save();
+      }
+    }
+    if (next === state.index && !notice) return;
     finishTurn();
     const oldSnap = reduceMotion ? null : snapshotFace();
     state.index = next;
     state.flipped = false;
     resetFlipInstantly();
     if (oldSnap) pageTurn(step > 0 ? "next" : "prev", oldSnap);
+    if (notice) { showToast(notice); centerActiveChip(true); }
     autoSpeak("show");
   };
 
