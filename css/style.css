@@ -260,6 +260,10 @@ button:focus-visible, select:focus-visible, .card:focus-visible {
 }
 .learned-seal svg { width: 26px; height: 26px; margin-bottom: 1px; }
 .card.is-learned .learned-seal, .page-snap.is-learned .learned-seal { display: grid; }
+/* 見えていない面のマークは出さない（Safari で裏から反転して透けて見えるのを防ぐ） */
+.learned-seal { -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+.card.is-learned:not(.is-flipped) .card-back .learned-seal,
+.card.is-learned.is-flipped .card-front .learned-seal { display: none; }
 .card.is-learned .card-face, .page-snap.is-learned .card-face {
   box-shadow: var(--shadow), inset 0 0 0 2px color-mix(in srgb, var(--accent) 45%, transparent);
 }
