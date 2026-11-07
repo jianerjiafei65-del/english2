@@ -647,10 +647,6 @@
     if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
       swiped = true;
       move(dx < 0 ? 1 : -1);
-    } else if (Math.abs(dy) > 60 && Math.abs(dy) > Math.abs(dx) * 1.5) {
-      // 上スワイプ＝覚えた＆次へ、下スワイプ＝チェックを外す
-      swiped = true;
-      if (dy < 0) learnAndNext(); else setCurrentLearned("unlearn");
     }
   });
   // スワイプ直後のタップ（カードめくり）を無効化

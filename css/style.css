@@ -268,8 +268,8 @@ button:focus-visible, select:focus-visible, .card:focus-visible {
   box-shadow: var(--shadow), inset 0 0 0 2px color-mix(in srgb, var(--accent) 45%, transparent);
 }
 .card.no-anim { transition: none; }
-/* カードの上ではスワイプ操作を優先（ページのスクロールはカードの外で） */
-.card { touch-action: none; -webkit-user-select: none; user-select: none; }
+/* カードの上でも縦スクロールはでき、横スワイプは単語の切り替えに使う */
+.card { touch-action: pan-y; -webkit-user-select: none; user-select: none; }
 
 /* 覚えたスタンプ */
 .stamp {
