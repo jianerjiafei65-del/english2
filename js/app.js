@@ -13,6 +13,7 @@
     lang: saved.lang || "en",             // en: 英単語を表に / ja: 翻訳を表に
     listMode: saved.listMode || "both",   // en | ja | both
     pos: saved.pos || "all",
+    scene: saved.scene || "all",
     learnedFilter: saved.learnedFilter || "all",
     learned: new Set(saved.learned || []),
     order: WORDS.map((_, i) => i),        // 出題順（WORDS のインデックス）
@@ -24,7 +25,7 @@
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         view: state.view, lang: state.lang, listMode: state.listMode,
-        pos: state.pos, learnedFilter: state.learnedFilter, learned: [...state.learned],
+        pos: state.pos, scene: state.scene, learnedFilter: state.learnedFilter, learned: [...state.learned],
       }));
     } catch { /* 保存できなくても動作は続ける */ }
   };
@@ -38,6 +39,8 @@
     cardView: $("cardView"), listView: $("listView"),
     posFilter: $("posFilter"), learnedFilter: $("learnedFilter"),
     learnedCount: $("learnedCount"), totalCount: $("totalCount"), progressFill: $("progressFill"),
+    sceneChips: $("sceneChips"), progressScope: $("progressScope"),
+    frontScene: $("frontScene"), backScene: $("backScene"),
     position: $("position"), card: $("card"), cardArea: $("cardArea"), emptyCard: $("emptyCard"),
     frontPos: $("frontPos"), frontText: $("frontText"),
     backPos: $("backPos"), backText: $("backText"), backSub: $("backSub"),
@@ -72,9 +75,15 @@
     speechSynthesis.speak(u);
   };
 
+  const sceneLabel = (id) => {
+    const s = SCENES.find((x) => x.id === id);
+    return s ? `${s.icon} ${s.id}` : id;
+  };
+
   // ===== 絞り込み =====
   const matches = (i) => {
     const w = WORDS[i];
+    if (state.scene !== "all" && w.scene !== state.scene) return false;
     if (state.pos !== "all" && w.pos !== state.pos) return false;
     const isLearned = state.learned.has(w.en);
     if (state.learnedFilter === "learned" && !isLearned) return false;
@@ -85,8 +94,11 @@
 
   // ===== 描画：共通 =====
   const renderProgress = () => {
-    const total = WORDS.length;
-    const count = WORDS.filter((w) => state.learned.has(w.en)).length;
+    // シーンを選んでいるときは、そのシーンの進捗を表示
+    const scope = state.scene === "all" ? WORDS : WORDS.filter((w) => w.scene === state.scene);
+    const total = scope.length;
+    const count = scope.filter((w) => state.learned.has(w.en)).length;
+    el.progressScope.textContent = state.scene === "all" ? "" : `（${state.scene}）`;
     el.learnedCount.textContent = count;
     el.totalCount.textContent = total;
     el.progressFill.style.width = `${(count / total) * 100}%`;
@@ -102,6 +114,11 @@
     el.listModeBtns.forEach((b) => b.classList.toggle("is-active", b.dataset.listmode === state.listMode));
     el.cardView.hidden = state.view !== "card";
     el.listView.hidden = state.view !== "list";
+    el.sceneChips.querySelectorAll(".chip").forEach((c) => {
+      const on = c.dataset.scene === state.scene;
+      c.classList.toggle("is-active", on);
+      c.setAttribute("aria-pressed", on);
+    });
     el.posFilter.value = state.pos;
     el.learnedFilter.value = state.learnedFilter;
   };
@@ -123,6 +140,8 @@
     el.position.textContent = `${state.index + 1} / ${list.length}`;
     el.frontPos.textContent = w.pos;
     el.backPos.textContent = w.pos;
+    el.frontScene.textContent = sceneLabel(w.scene);
+    el.backScene.textContent = sceneLabel(w.scene);
     el.frontText.textContent = isEn ? w.en : w.ja;
     el.backText.textContent = isEn ? w.ja : w.en;
     el.backSub.textContent = isEn ? w.en : w.ja;
@@ -155,8 +174,19 @@
     el.wordList.innerHTML = "";
     const frag = document.createDocumentFragment();
 
+    let lastScene = null;
     list.forEach((i) => {
       const w = WORDS[i];
+      // シーンが変わるところに見出しを入れる
+      if (w.scene !== lastScene) {
+        lastScene = w.scene;
+        const h = document.createElement("li");
+        h.className = "scene-heading";
+        const all = WORDS.filter((x) => x.scene === w.scene);
+        const done = all.filter((x) => state.learned.has(x.en)).length;
+        h.textContent = `${sceneLabel(w.scene)}  ${done} / ${all.length}`;
+        frag.appendChild(h);
+      }
       const learned = state.learned.has(w.en);
       const li = document.createElement("li");
       li.className = "word-item" + (learned ? " is-learned" : "");
@@ -330,10 +360,31 @@
   }, true);
 
   // ===== 初期化 =====
+  // シーンのボタンを作る
+  const makeChip = (id, label) => {
+    const b = document.createElement("button");
+    b.className = "chip";
+    b.dataset.scene = id;
+    b.textContent = label;
+    b.addEventListener("click", () => {
+      state.scene = id;
+      resetFilterPosition();
+      // ボタンの列だけを横にスクロールして、選んだシーンを中央に
+      const c = el.sceneChips;
+      c.scrollTo({ left: b.offsetLeft - (c.clientWidth - b.offsetWidth) / 2, behavior: "smooth" });
+    });
+    el.sceneChips.appendChild(b);
+  };
+  makeChip("all", "すべて");
+  SCENES.forEach((s) => makeChip(s.id, sceneLabel(s.id)));
+
   [...new Set(WORDS.map((w) => w.pos))].forEach((p) => {
     const opt = document.createElement("option");
     opt.value = p; opt.textContent = p;
     el.posFilter.appendChild(opt);
   });
   render();
+  // 保存されていたシーンのボタンを見える位置に
+  const activeChip = el.sceneChips.querySelector(".chip.is-active");
+  if (activeChip) el.sceneChips.scrollLeft = activeChip.offsetLeft - (el.sceneChips.clientWidth - activeChip.offsetWidth) / 2;
 })();

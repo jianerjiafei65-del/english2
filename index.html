@@ -23,6 +23,7 @@
         <button class="lang-btn is-active" data-lang="en">英単語</button>
         <button class="lang-btn" data-lang="ja">翻訳</button>
       </div>
+      <div class="scene-chips" id="sceneChips" role="group" aria-label="シーンで絞り込み"></div>
       <div class="filters">
         <select id="posFilter" class="select" aria-label="品詞で絞り込み">
           <option value="all">すべての品詞</option>
@@ -34,24 +35,26 @@
         </select>
       </div>
       <div class="progress">
-        <div class="progress-text">覚えた単語：<strong id="learnedCount">0</strong> / <span id="totalCount">0</span></div>
+        <div class="progress-text">覚えた単語<span id="progressScope"></span>：<strong id="learnedCount">0</strong> / <span id="totalCount">0</span></div>
         <div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
       </div>
     </section>
 
     <!-- カードモード -->
     <section id="cardView" class="view">
-      <p id="position" class="position">1 / 50</p>
+      <p id="position" class="position">1 / 100</p>
 
       <div id="cardArea" class="card-area">
         <div id="card" class="card" tabindex="0" aria-label="タップで答えを表示">
           <div class="card-face card-front">
             <span id="frontPos" class="pos-tag"></span>
+            <span id="frontScene" class="scene-tag"></span>
             <p id="frontText" class="card-word"></p>
             <p class="hint">タップで答えを見る</p>
           </div>
           <div class="card-face card-back">
             <span id="backPos" class="pos-tag"></span>
+            <span id="backScene" class="scene-tag"></span>
             <p id="backText" class="card-word"></p>
             <p id="backSub" class="card-sub"></p>
             <div class="example">

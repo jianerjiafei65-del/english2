@@ -92,6 +92,20 @@ button, select { font: inherit; color: inherit; -webkit-tap-highlight-color: tra
 }
 .lang-btn.is-active, .list-mode-btn.is-active { background: var(--primary); color: var(--primary-text); }
 
+.scene-chips {
+  position: relative;
+  display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 6px;
+  scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+}
+.scene-chips::-webkit-scrollbar { display: none; }
+.chip {
+  flex: 0 0 auto; min-height: 40px; padding: 0 14px; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--surface); color: var(--text);
+  cursor: pointer; white-space: nowrap; scroll-snap-align: center; font-size: 0.9rem;
+}
+.chip.is-active { background: var(--primary); border-color: var(--primary); color: var(--primary-text); font-weight: 600; }
+
 .filters { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .select {
   width: 100%; min-height: 44px; padding: 0 12px;
@@ -150,6 +164,11 @@ button, select { font: inherit; color: inherit; -webkit-tap-highlight-color: tra
   font-size: 0.75rem; padding: 2px 10px; border-radius: 999px;
   background: var(--bg); color: var(--muted);
 }
+.scene-tag {
+  position: absolute; top: 14px; right: 14px;
+  font-size: 0.75rem; padding: 2px 10px; border-radius: 999px;
+  background: var(--bg); color: var(--muted);
+}
 .card-word { font-size: clamp(1.8rem, 8vw, 2.6rem); font-weight: 700; margin: 0; word-break: break-word; }
 .card-sub { color: var(--muted); margin: 4px 0 0; font-size: 1rem; }
 .hint { color: var(--muted); font-size: 0.85rem; margin: 16px 0 0; }
@@ -166,6 +185,11 @@ button, select { font: inherit; color: inherit; -webkit-tap-highlight-color: tra
 /* ===== 一覧 ===== */
 .list-hint { font-size: 0.8rem; color: var(--muted); text-align: center; margin: 8px 0; }
 .word-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.scene-heading {
+  font-weight: 700; font-size: 0.95rem; padding: 12px 4px 0; color: var(--text);
+  white-space: pre;
+}
+.scene-heading:first-child { padding-top: 0; }
 .word-item {
   display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px;
   background: var(--surface); border: 1px solid var(--border);
@@ -199,5 +223,5 @@ button, select { font: inherit; color: inherit; -webkit-tap-highlight-color: tra
   .title { font-size: 1.35rem; }
   .card { min-height: 340px; }
   .controls { grid-template-columns: 1fr 1fr; align-items: end; }
-  .progress { grid-column: 1 / -1; }
+  .progress, .scene-chips, .lang-switch { grid-column: 1 / -1; }
 }
