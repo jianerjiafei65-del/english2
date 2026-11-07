@@ -48,6 +48,7 @@
     position: $("position"), card: $("card"), cardArea: $("cardArea"), emptyCard: $("emptyCard"),
     frontPos: $("frontPos"), frontText: $("frontText"),
     backPos: $("backPos"), backText: $("backText"), backSub: $("backSub"),
+    frontKana: $("frontKana"), backKana: $("backKana"), backSubKana: $("backSubKana"),
     exampleEn: $("exampleEn"), exampleJa: $("exampleJa"),
     speakBtn: $("speakBtn"), speakExampleBtn: $("speakExampleBtn"), learnBtn: $("learnBtn"),
     autoSpeakBtn: $("autoSpeakBtn"), slowBtn: $("slowBtn"), toast: $("toast"),
@@ -236,6 +237,14 @@
     el.frontText.classList.toggle("is-ja", !isEn);
     el.backText.classList.toggle("is-ja", isEn);
     el.backSub.textContent = isEn ? w.en : w.ja;
+    // 英単語の上にカタカナ読み（英単語が表示されている場所だけ）
+    const kana = w.kana || "";
+    el.frontKana.textContent = isEn ? kana : "";
+    el.backKana.textContent = isEn ? "" : kana;
+    el.backSubKana.textContent = isEn ? kana : "";
+    el.frontKana.hidden = !el.frontKana.textContent;
+    el.backKana.hidden = !el.backKana.textContent;
+    el.backSubKana.hidden = !el.backSubKana.textContent;
     el.exampleEn.textContent = w.example;
     el.exampleJa.textContent = w.exampleJa;
 
@@ -306,6 +315,12 @@
       const en = document.createElement("div");
       en.className = "word-en";
       en.textContent = w.en;
+      if (w.kana) {
+        const kanaEl = document.createElement("span");
+        kanaEl.className = "word-kana";
+        kanaEl.textContent = w.kana;
+        en.prepend(kanaEl);
+      }
       const pos = document.createElement("span");
       pos.className = "word-pos";
       pos.textContent = w.pos;
