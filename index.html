@@ -67,7 +67,8 @@
       </div>
 
       <div class="card-actions">
-        <button id="speakBtn" class="btn btn-icon" aria-label="発音を聞く">🔊 発音</button>
+        <button id="speakBtn" class="btn btn-icon" aria-label="単語の発音を聞く">🔊 単語</button>
+        <button id="speakExampleBtn" class="btn btn-icon" aria-label="例文を聞く">🗣️ 例文</button>
         <button id="learnBtn" class="btn btn-learn" aria-pressed="false">☐ 覚えた</button>
       </div>
 
@@ -79,6 +80,19 @@
       <div class="sub-actions">
         <button id="shuffleBtn" class="btn btn-ghost">🔀 シャッフル</button>
         <button id="resetOrderBtn" class="btn btn-ghost">↺ 元の順番</button>
+      </div>
+
+      <div class="audio-settings" role="group" aria-label="音声の設定">
+        <p class="audio-title">音声の設定</p>
+        <div class="audio-row">
+          <button id="autoSpeakBtn" class="toggle" aria-pressed="false">
+            <span class="toggle-label">🔁 自動読み上げ</span><span class="toggle-state">OFF</span>
+          </button>
+          <button id="slowBtn" class="toggle" aria-pressed="false">
+            <span class="toggle-label">🐢 ゆっくり</span><span class="toggle-state">OFF</span>
+          </button>
+        </div>
+        <p class="audio-note">自動読み上げをONにすると、英語が表のカードは表示したとき、日本語が表のカードはめくったときに読み上げます。</p>
       </div>
     </section>
 
@@ -94,6 +108,8 @@
       <p id="emptyList" class="empty" hidden>条件に合う単語がありません</p>
     </section>
   </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
   <footer class="footer">
     <button id="resetLearnedBtn" class="btn btn-ghost btn-small">覚えた記録をリセット</button>

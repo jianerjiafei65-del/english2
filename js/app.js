@@ -12,6 +12,8 @@
     view: saved.view || "card",           // card | list
     lang: saved.lang || "en",             // en: 英単語を表に / ja: 翻訳を表に
     listMode: saved.listMode || "both",   // en | ja | both
+    autoSpeak: !!saved.autoSpeak,         // カード表示時に自動で読み上げ
+    slow: !!saved.slow,                   // ゆっくり読み上げ
     pos: saved.pos || "all",
     scene: saved.scene || "all",
     learnedFilter: saved.learnedFilter || "all",
@@ -25,6 +27,7 @@
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         view: state.view, lang: state.lang, listMode: state.listMode,
+        autoSpeak: state.autoSpeak, slow: state.slow,
         pos: state.pos, scene: state.scene, learnedFilter: state.learnedFilter, learned: [...state.learned],
       }));
     } catch { /* 保存できなくても動作は続ける */ }
@@ -45,7 +48,8 @@
     frontPos: $("frontPos"), frontText: $("frontText"),
     backPos: $("backPos"), backText: $("backText"), backSub: $("backSub"),
     exampleEn: $("exampleEn"), exampleJa: $("exampleJa"),
-    speakBtn: $("speakBtn"), learnBtn: $("learnBtn"),
+    speakBtn: $("speakBtn"), speakExampleBtn: $("speakExampleBtn"), learnBtn: $("learnBtn"),
+    autoSpeakBtn: $("autoSpeakBtn"), slowBtn: $("slowBtn"), toast: $("toast"),
     prevBtn: $("prevBtn"), nextBtn: $("nextBtn"), flipBtn: $("flipBtn"),
     shuffleBtn: $("shuffleBtn"), resetOrderBtn: $("resetOrderBtn"),
     wordList: $("wordList"), emptyList: $("emptyList"),
@@ -65,13 +69,37 @@
     pickVoice();
     speechSynthesis.addEventListener?.("voiceschanged", pickVoice);
   }
-  const speak = (text) => {
-    if (!canSpeak) return;
+  let toastTimer = null;
+  const showToast = (msg) => {
+    el.toast.textContent = msg;
+    el.toast.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => (el.toast.hidden = true), 2500);
+  };
+
+  // 読み上げ中のボタンを光らせる
+  let speakingBtn = null;
+  const setSpeaking = (btn) => {
+    if (speakingBtn) speakingBtn.classList.remove("is-speaking");
+    speakingBtn = btn || null;
+    if (speakingBtn) speakingBtn.classList.add("is-speaking");
+  };
+
+  const speak = (text, btn) => {
+    if (!canSpeak) { showToast("このブラウザは読み上げに対応していません"); return; }
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     u.lang = "en-US";
     if (englishVoice) u.voice = englishVoice;
-    u.rate = 0.9;
+    u.rate = state.slow ? 0.6 : 0.9;
+    u.onstart = () => setSpeaking(btn);
+    u.onend = () => setSpeaking(null);
+    u.onerror = (e) => {
+      setSpeaking(null);
+      if (e.error !== "interrupted" && e.error !== "canceled") {
+        showToast("音声を再生できませんでした。端末の音量やマナーモードを確認してください");
+      }
+    };
     speechSynthesis.speak(u);
   };
 
@@ -129,7 +157,7 @@
     const empty = list.length === 0;
     el.card.hidden = empty;
     el.emptyCard.hidden = !empty;
-    [el.speakBtn, el.learnBtn, el.prevBtn, el.nextBtn, el.flipBtn].forEach((b) => (b.disabled = empty));
+    [el.speakBtn, el.speakExampleBtn, el.learnBtn, el.prevBtn, el.nextBtn, el.flipBtn].forEach((b) => (b.disabled = empty));
     if (empty) { el.position.textContent = "0 / 0"; return; }
 
     if (state.index >= list.length) state.index = list.length - 1;
@@ -223,7 +251,7 @@
       sp.className = "speak-mini";
       sp.textContent = "🔊";
       sp.setAttribute("aria-label", `${w.en} の発音を聞く`);
-      sp.addEventListener("click", () => speak(w.en));
+      sp.addEventListener("click", () => speak(w.en, sp));
 
       li.append(check, texts, sp);
       frag.appendChild(li);
@@ -231,8 +259,17 @@
     el.wordList.appendChild(frag);
   };
 
+  const renderAudio = () => {
+    [[el.autoSpeakBtn, state.autoSpeak], [el.slowBtn, state.slow]].forEach(([b, on]) => {
+      b.classList.toggle("is-on", on);
+      b.setAttribute("aria-pressed", on);
+      b.querySelector(".toggle-state").textContent = on ? "ON" : "OFF";
+    });
+  };
+
   const render = (anim) => {
     renderToggles();
+    renderAudio();
     renderProgress();
     if (state.view === "card") renderCard(anim); else renderList();
   };
@@ -256,12 +293,23 @@
     state.index = next;
     state.flipped = false;
     render(step > 0 ? "slide-left" : "slide-right");
+    autoSpeak("show");
+  };
+
+  // 自動読み上げ：英語が表なら表示したとき、日本語が表ならめくって英語が出たとき
+  const autoSpeak = (moment) => {
+    if (!state.autoSpeak || state.view !== "card") return;
+    const w = currentWord(); if (!w) return;
+    if ((moment === "show" && state.lang === "en") || (moment === "flip" && state.lang === "ja" && state.flipped)) {
+      speak(w.en, el.speakBtn);
+    }
   };
 
   const flip = () => {
     if (!currentWord()) return;
     state.flipped = !state.flipped;
     render();
+    autoSpeak("flip");
   };
 
   const shuffle = () => {
@@ -273,6 +321,7 @@
     state.index = 0;
     state.flipped = false;
     render("slide-left");
+    autoSpeak("show");
   };
 
   const resetFilterPosition = () => { state.index = 0; state.flipped = false; save(); render(); };
@@ -301,7 +350,17 @@
   el.resetOrderBtn.addEventListener("click", () => {
     state.order = WORDS.map((_, i) => i); state.index = 0; state.flipped = false; render();
   });
-  el.speakBtn.addEventListener("click", () => { const w = currentWord(); if (w) speak(w.en); });
+  el.speakBtn.addEventListener("click", () => { const w = currentWord(); if (w) speak(w.en, el.speakBtn); });
+  el.speakExampleBtn.addEventListener("click", () => { const w = currentWord(); if (w) speak(w.example, el.speakExampleBtn); });
+  el.autoSpeakBtn.addEventListener("click", () => {
+    state.autoSpeak = !state.autoSpeak; save(); renderAudio();
+    showToast(state.autoSpeak ? "自動読み上げをONにしました" : "自動読み上げをOFFにしました");
+    if (state.autoSpeak) autoSpeak("show");
+  });
+  el.slowBtn.addEventListener("click", () => {
+    state.slow = !state.slow; save(); renderAudio();
+    const w = currentWord(); if (w) speak(w.en, el.speakBtn); // 速さを試しに聞かせる
+  });
   el.learnBtn.addEventListener("click", () => {
     const w = currentWord(); if (!w) return;
     toggleLearned(w.en);
@@ -328,8 +387,10 @@
   });
 
   if (!canSpeak) {
-    el.speakBtn.disabled = true;
-    el.speakBtn.title = "このブラウザは読み上げに対応していません";
+    [el.speakBtn, el.speakExampleBtn, el.autoSpeakBtn, el.slowBtn].forEach((b) => {
+      b.disabled = true;
+      b.title = "このブラウザは読み上げに対応していません";
+    });
   }
 
   // キーボード操作（PC 用）
@@ -338,7 +399,8 @@
     if (e.key === "ArrowRight") move(1);
     else if (e.key === "ArrowLeft") move(-1);
     else if (e.key === " " || e.key === "Enter") { e.preventDefault(); flip(); }
-    else if (e.key.toLowerCase() === "s") { const w = currentWord(); if (w) speak(w.en); }
+    else if (e.key.toLowerCase() === "s") { const w = currentWord(); if (w) speak(w.en, el.speakBtn); }
+    else if (e.key.toLowerCase() === "e") { const w = currentWord(); if (w) speak(w.example, el.speakExampleBtn); }
   });
 
   // スワイプ操作（スマホ用）
