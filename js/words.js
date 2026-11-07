@@ -1,18 +1,18 @@
 // 中学生レベルの英単語データ（シーン別・100語）
 // en: 英単語 / ja: 日本語訳 / pos: 品詞 / scene: シーン / example: 例文 / exampleJa: 例文の訳
 
-// シーンの表示順とアイコン
+// シーンの表示順（en はカードに表示する英語のラベル）
 const SCENES = [
-  { id: "学校", icon: "🏫" },
-  { id: "家・家族", icon: "🏠" },
-  { id: "食べ物", icon: "🍙" },
-  { id: "町・お出かけ", icon: "🚉" },
-  { id: "自然・天気", icon: "🌤️" },
-  { id: "気持ち・人", icon: "😊" },
-  { id: "スポーツ・趣味", icon: "⚽" },
-  { id: "旅行・世界", icon: "✈️" },
-  { id: "時間・毎日", icon: "⏰" },
-  { id: "体・健康", icon: "💪" },
+  { id: "学校", en: "School" },
+  { id: "家・家族", en: "Home" },
+  { id: "食べ物", en: "Food" },
+  { id: "町・お出かけ", en: "Town" },
+  { id: "自然・天気", en: "Nature" },
+  { id: "気持ち・人", en: "People" },
+  { id: "スポーツ・趣味", en: "Hobbies" },
+  { id: "旅行・世界", en: "Travel" },
+  { id: "時間・毎日", en: "Daily" },
+  { id: "体・健康", en: "Body" },
 ];
 
 const WORDS = [

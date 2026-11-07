@@ -103,10 +103,8 @@
     speechSynthesis.speak(u);
   };
 
-  const sceneLabel = (id) => {
-    const s = SCENES.find((x) => x.id === id);
-    return s ? `${s.icon} ${s.id}` : id;
-  };
+  const sceneLabel = (id) => id;
+  const sceneEn = (id) => (SCENES.find((x) => x.id === id) || {}).en || "";
 
   // ===== 絞り込み =====
   const matches = (i) => {
@@ -168,10 +166,13 @@
     el.position.textContent = `${state.index + 1} / ${list.length}`;
     el.frontPos.textContent = w.pos;
     el.backPos.textContent = w.pos;
-    el.frontScene.textContent = sceneLabel(w.scene);
-    el.backScene.textContent = sceneLabel(w.scene);
+    const tag = `${sceneEn(w.scene)} · ${w.scene}`;
+    el.frontScene.textContent = tag;
+    el.backScene.textContent = tag;
     el.frontText.textContent = isEn ? w.en : w.ja;
     el.backText.textContent = isEn ? w.ja : w.en;
+    el.frontText.classList.toggle("is-ja", !isEn);
+    el.backText.classList.toggle("is-ja", isEn);
     el.backSub.textContent = isEn ? w.en : w.ja;
     el.exampleEn.textContent = w.example;
     el.exampleJa.textContent = w.exampleJa;
@@ -183,7 +184,7 @@
     el.card.classList.toggle("is-learned", learned);
     el.learnBtn.classList.toggle("is-learned", learned);
     el.learnBtn.setAttribute("aria-pressed", learned);
-    el.learnBtn.textContent = learned ? "☑ 覚えた！" : "☐ 覚えた";
+    el.learnBtn.querySelector(".btn-label").textContent = learned ? "覚えた！" : "覚えた";
 
     el.prevBtn.disabled = state.index === 0;
     el.nextBtn.disabled = state.index === list.length - 1;
@@ -212,7 +213,17 @@
         h.className = "scene-heading";
         const all = WORDS.filter((x) => x.scene === w.scene);
         const done = all.filter((x) => state.learned.has(x.en)).length;
-        h.textContent = `${sceneLabel(w.scene)}  ${done} / ${all.length}`;
+        const name = document.createElement("span");
+        name.className = "scene-heading-name";
+        name.textContent = w.scene;
+        const en = document.createElement("span");
+        en.className = "scene-heading-en";
+        en.textContent = sceneEn(w.scene).toUpperCase();
+        name.appendChild(en);
+        const cnt = document.createElement("span");
+        cnt.className = "scene-heading-count";
+        cnt.textContent = `${done} / ${all.length}`;
+        h.append(name, cnt);
         frag.appendChild(h);
       }
       const learned = state.learned.has(w.en);
@@ -249,7 +260,7 @@
 
       const sp = document.createElement("button");
       sp.className = "speak-mini";
-      sp.textContent = "🔊";
+      sp.innerHTML = '<svg aria-hidden="true"><use href="#i-speaker"/></svg>';
       sp.setAttribute("aria-label", `${w.en} の発音を聞く`);
       sp.addEventListener("click", () => speak(w.en, sp));
 

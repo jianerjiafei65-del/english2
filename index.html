@@ -3,60 +3,94 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#4f6bed">
+  <meta name="theme-color" content="#f6f6f4" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0e0f11" media="(prefers-color-scheme: dark)">
   <title>中学英単語</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500&family=Plus+Jakarta+Sans:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <!-- アイコン（SVG） -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-speaker" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-quote" viewBox="0 0 24 24"><path d="M5 5h14a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-8l-4 3v-3H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 9.5h8M8 12.5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m8 12.3 2.7 2.7L16 9.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-left" viewBox="0 0 24 24"><path d="M14.5 6 8.5 12l6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-right" viewBox="0 0 24 24"><path d="m9.5 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="M4 7h3.5c4.5 0 4.5 10 9 10H20M4 17h3.5c1.6 0 2.6-1.2 3.4-2.8M13.1 9.8C13.9 8.2 14.9 7 16.5 7H20M17.5 4.5 20 7l-2.5 2.5M17.5 14.5 20 17l-2.5 2.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-reset" viewBox="0 0 24 24"><path d="M5 12a7 7 0 1 0 2.1-5M5 4v4h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </svg>
+
   <header class="header">
-    <h1 class="title">中学英単語</h1>
-    <div class="tabs" role="tablist">
-      <button class="tab is-active" role="tab" data-view="card" aria-selected="true">カード</button>
-      <button class="tab" role="tab" data-view="list" aria-selected="false">一覧</button>
+    <div class="header-inner">
+      <div class="brand">
+        <h1 class="title">中学英単語</h1>
+        <p class="subtitle">JUNIOR HIGH · 100 WORDS</p>
+      </div>
+      <div class="tabs" role="tablist">
+        <button class="tab is-active" role="tab" data-view="card" aria-selected="true">カード</button>
+        <button class="tab" role="tab" data-view="list" aria-selected="false">一覧</button>
+      </div>
     </div>
   </header>
 
   <main class="main">
     <!-- 共通の操作パネル -->
     <section class="controls">
-      <div class="lang-switch" role="group" aria-label="表示言語の切替">
-        <button class="lang-btn is-active" data-lang="en">英単語</button>
-        <button class="lang-btn" data-lang="ja">翻訳</button>
-      </div>
-      <div class="scene-chips" id="sceneChips" role="group" aria-label="シーンで絞り込み"></div>
-      <div class="filters">
-        <select id="posFilter" class="select" aria-label="品詞で絞り込み">
-          <option value="all">すべての品詞</option>
-        </select>
-        <select id="learnedFilter" class="select" aria-label="覚えた単語で絞り込み">
-          <option value="all">すべて</option>
-          <option value="unlearned">未習得のみ</option>
-          <option value="learned">覚えたのみ</option>
-        </select>
-      </div>
       <div class="progress">
-        <div class="progress-text">覚えた単語<span id="progressScope"></span>：<strong id="learnedCount">0</strong> / <span id="totalCount">0</span></div>
+        <div class="progress-text">
+          <span>覚えた単語<span id="progressScope"></span></span>
+          <span class="progress-num"><strong id="learnedCount">0</strong> / <span id="totalCount">0</span></span>
+        </div>
         <div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
+      </div>
+
+      <div class="scene-chips" id="sceneChips" role="group" aria-label="シーンで絞り込み"></div>
+
+      <div class="control-row">
+        <div class="lang-switch" role="group" aria-label="表示言語の切替">
+          <button class="lang-btn is-active" data-lang="en">英単語</button>
+          <button class="lang-btn" data-lang="ja">翻訳</button>
+        </div>
+        <div class="filters">
+          <select id="posFilter" class="select" aria-label="品詞で絞り込み">
+            <option value="all">すべての品詞</option>
+          </select>
+          <select id="learnedFilter" class="select" aria-label="覚えた単語で絞り込み">
+            <option value="all">すべて</option>
+            <option value="unlearned">未習得のみ</option>
+            <option value="learned">覚えたのみ</option>
+          </select>
+        </div>
       </div>
     </section>
 
     <!-- カードモード -->
     <section id="cardView" class="view">
-      <p id="position" class="position">1 / 100</p>
-
       <div id="cardArea" class="card-area">
         <div id="card" class="card" tabindex="0" aria-label="タップで答えを表示">
           <div class="card-face card-front">
-            <span id="frontPos" class="pos-tag"></span>
-            <span id="frontScene" class="scene-tag"></span>
+            <div class="card-meta">
+              <span id="frontScene" class="scene-tag"></span>
+              <span id="frontPos" class="pos-tag"></span>
+            </div>
             <p id="frontText" class="card-word"></p>
-            <p class="hint">タップで答えを見る</p>
+            <div class="card-foot">
+              <span class="hint">タップでめくる</span>
+              <span class="learned-mark" aria-hidden="true"><svg><use href="#i-check"/></svg>覚えた</span>
+            </div>
           </div>
           <div class="card-face card-back">
-            <span id="backPos" class="pos-tag"></span>
-            <span id="backScene" class="scene-tag"></span>
-            <p id="backText" class="card-word"></p>
-            <p id="backSub" class="card-sub"></p>
+            <div class="card-meta">
+              <span id="backScene" class="scene-tag"></span>
+              <span id="backPos" class="pos-tag"></span>
+            </div>
+            <div class="card-answer">
+              <p id="backText" class="card-word card-word-back"></p>
+              <p id="backSub" class="card-sub"></p>
+            </div>
             <div class="example">
               <p id="exampleEn" class="example-en"></p>
               <p id="exampleJa" class="example-ja"></p>
@@ -66,33 +100,44 @@
         <p id="emptyCard" class="empty" hidden>条件に合う単語がありません</p>
       </div>
 
-      <div class="card-actions">
-        <button id="speakBtn" class="btn btn-icon" aria-label="単語の発音を聞く">🔊 単語</button>
-        <button id="speakExampleBtn" class="btn btn-icon" aria-label="例文を聞く">🗣️ 例文</button>
-        <button id="learnBtn" class="btn btn-learn" aria-pressed="false">☐ 覚えた</button>
+      <div class="nav">
+        <button id="prevBtn" class="btn btn-round" aria-label="前の単語"><svg class="icon"><use href="#i-left"/></svg></button>
+        <div class="nav-center">
+          <p id="position" class="position">1 / 100</p>
+          <button id="flipBtn" class="btn btn-primary">答えを見る</button>
+        </div>
+        <button id="nextBtn" class="btn btn-round" aria-label="次の単語"><svg class="icon"><use href="#i-right"/></svg></button>
       </div>
 
-      <div class="nav">
-        <button id="prevBtn" class="btn btn-nav" aria-label="前の単語">◀ 前へ</button>
-        <button id="flipBtn" class="btn btn-primary">答えを見る</button>
-        <button id="nextBtn" class="btn btn-nav" aria-label="次の単語">次へ ▶</button>
+      <div class="card-actions">
+        <button id="speakBtn" class="btn" aria-label="単語の発音を聞く"><svg class="icon"><use href="#i-speaker"/></svg><span>単語</span></button>
+        <button id="speakExampleBtn" class="btn" aria-label="例文を聞く"><svg class="icon"><use href="#i-quote"/></svg><span>例文</span></button>
+        <button id="learnBtn" class="btn btn-learn" aria-pressed="false"><svg class="icon"><use href="#i-check"/></svg><span class="btn-label">覚えた</span></button>
       </div>
+
       <div class="sub-actions">
-        <button id="shuffleBtn" class="btn btn-ghost">🔀 シャッフル</button>
-        <button id="resetOrderBtn" class="btn btn-ghost">↺ 元の順番</button>
+        <button id="shuffleBtn" class="btn btn-ghost"><svg class="icon"><use href="#i-shuffle"/></svg>シャッフル</button>
+        <button id="resetOrderBtn" class="btn btn-ghost"><svg class="icon"><use href="#i-reset"/></svg>元の順番</button>
       </div>
 
       <div class="audio-settings" role="group" aria-label="音声の設定">
-        <p class="audio-title">音声の設定</p>
-        <div class="audio-row">
-          <button id="autoSpeakBtn" class="toggle" aria-pressed="false">
-            <span class="toggle-label">🔁 自動読み上げ</span><span class="toggle-state">OFF</span>
-          </button>
-          <button id="slowBtn" class="toggle" aria-pressed="false">
-            <span class="toggle-label">🐢 ゆっくり</span><span class="toggle-state">OFF</span>
-          </button>
-        </div>
-        <p class="audio-note">自動読み上げをONにすると、英語が表のカードは表示したとき、日本語が表のカードはめくったときに読み上げます。</p>
+        <p class="section-label">AUDIO</p>
+        <button id="autoSpeakBtn" class="toggle" aria-pressed="false">
+          <span class="toggle-text">
+            <span class="toggle-label">自動読み上げ</span>
+            <span class="toggle-desc">英語が出たときに自動で発音</span>
+          </span>
+          <span class="switch" aria-hidden="true"></span>
+          <span class="toggle-state" hidden>OFF</span>
+        </button>
+        <button id="slowBtn" class="toggle" aria-pressed="false">
+          <span class="toggle-text">
+            <span class="toggle-label">ゆっくり再生</span>
+            <span class="toggle-desc">聞き取りやすい速さにする</span>
+          </span>
+          <span class="switch" aria-hidden="true"></span>
+          <span class="toggle-state" hidden>OFF</span>
+        </button>
       </div>
     </section>
 
