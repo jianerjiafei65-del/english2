@@ -32,6 +32,8 @@ const WORDS = [
   { scene: "学校", en: "answer", ja: "答え、答える", pos: "動詞", example: "Please answer the question.", exampleJa: "その質問に答えてください。" },
   { scene: "学校", en: "learn", ja: "学ぶ、覚える", pos: "動詞", example: "We learn many things at school.", exampleJa: "私たちは学校でたくさんのことを学びます。" },
   { scene: "学校", en: "easy", ja: "簡単な", pos: "形容詞", example: "The test was easy.", exampleJa: "テストは簡単でした。" },
+  { scene: "学校", en: "science", ja: "理科、科学", pos: "名詞", example: "Science is my favorite subject.", exampleJa: "理科は私のいちばん好きな教科です。" },
+  { scene: "学校", en: "club", ja: "部活動、クラブ", pos: "名詞", example: "I am in the tennis club.", exampleJa: "私はテニス部に入っています。" },
 
   // ===== 家・家族 =====
   { scene: "家・家族", en: "family", ja: "家族", pos: "名詞", example: "There are five people in my family.", exampleJa: "私の家族は5人です。" },
@@ -49,6 +51,8 @@ const WORDS = [
   { scene: "家・家族", en: "garden", ja: "庭", pos: "名詞", example: "We grow tomatoes in our garden.", exampleJa: "私たちは庭でトマトを育てています。" },
   { scene: "家・家族", en: "live", ja: "住む", pos: "動詞", example: "I live in Kofu.", exampleJa: "私は甲府に住んでいます。" },
   { scene: "家・家族", en: "wash", ja: "洗う", pos: "動詞", example: "I wash the dishes after dinner.", exampleJa: "私は夕食の後にお皿を洗います。" },
+  { scene: "家・家族", en: "grandfather", ja: "祖父", pos: "名詞", example: "My grandfather lives in Yamanashi.", exampleJa: "祖父は山梨に住んでいます。" },
+  { scene: "家・家族", en: "pet", ja: "ペット", pos: "名詞", example: "Do you have any pets?", exampleJa: "あなたはペットを飼っていますか？" },
 
   // ===== 食べ物 =====
   { scene: "食べ物", en: "apple", ja: "りんご", pos: "名詞", example: "I eat an apple every morning.", exampleJa: "私は毎朝りんごを食べます。" },
@@ -66,6 +70,8 @@ const WORDS = [
   { scene: "食べ物", en: "fruit", ja: "くだもの", pos: "名詞", example: "Yamanashi is famous for fruit.", exampleJa: "山梨はくだもので有名です。" },
   { scene: "食べ物", en: "fish", ja: "魚", pos: "名詞", example: "My grandfather likes fish.", exampleJa: "祖父は魚が好きです。" },
   { scene: "食べ物", en: "sweet", ja: "あまい", pos: "形容詞", example: "These peaches are very sweet.", exampleJa: "これらの桃はとてもあまい。" },
+  { scene: "食べ物", en: "milk", ja: "牛乳", pos: "名詞", example: "I drink a glass of milk every day.", exampleJa: "私は毎日コップ1杯の牛乳を飲みます。" },
+  { scene: "食べ物", en: "egg", ja: "卵", pos: "名詞", example: "I had an egg for breakfast.", exampleJa: "私は朝食に卵を食べました。" },
 
   // ===== 町・お出かけ =====
   { scene: "町・お出かけ", en: "station", ja: "駅", pos: "名詞", example: "The station is near my house.", exampleJa: "駅は私の家の近くにあります。" },
@@ -83,6 +89,8 @@ const WORDS = [
   { scene: "町・お出かけ", en: "bus", ja: "バス", pos: "名詞", example: "I take the bus to the station.", exampleJa: "私は駅までバスに乗ります。" },
   { scene: "町・お出かけ", en: "street", ja: "通り", pos: "名詞", example: "There are many shops on this street.", exampleJa: "この通りにはたくさんの店があります。" },
   { scene: "町・お出かけ", en: "far", ja: "遠くに", pos: "副詞", example: "Is the museum far from here?", exampleJa: "博物館はここから遠いですか？" },
+  { scene: "町・お出かけ", en: "post office", ja: "郵便局", pos: "名詞", example: "Where is the post office?", exampleJa: "郵便局はどこですか？" },
+  { scene: "町・お出かけ", en: "bridge", ja: "橋", pos: "名詞", example: "There is an old bridge over the river.", exampleJa: "川に古い橋がかかっています。" },
 
   // ===== 自然・天気 =====
   { scene: "自然・天気", en: "weather", ja: "天気", pos: "名詞", example: "The weather is nice today.", exampleJa: "今日は天気がいい。" },
@@ -100,6 +108,8 @@ const WORDS = [
   { scene: "自然・天気", en: "sun", ja: "太陽", pos: "名詞", example: "The sun rises in the east.", exampleJa: "太陽は東からのぼります。" },
   { scene: "自然・天気", en: "wind", ja: "風", pos: "名詞", example: "The wind is strong today.", exampleJa: "今日は風が強い。" },
   { scene: "自然・天気", en: "warm", ja: "あたたかい", pos: "形容詞", example: "It is warm in spring.", exampleJa: "春はあたたかい。" },
+  { scene: "自然・天気", en: "cloudy", ja: "くもりの", pos: "形容詞", example: "It is cloudy today.", exampleJa: "今日はくもりです。" },
+  { scene: "自然・天気", en: "lake", ja: "湖", pos: "名詞", example: "We can see Mt. Fuji from the lake.", exampleJa: "その湖から富士山が見えます。" },
 
   // ===== 気持ち・人 =====
   { scene: "気持ち・人", en: "friend", ja: "友だち", pos: "名詞", example: "She is my best friend.", exampleJa: "彼女は私の親友です。" },
@@ -117,6 +127,8 @@ const WORDS = [
   { scene: "気持ち・人", en: "angry", ja: "怒った", pos: "形容詞", example: "Why are you angry?", exampleJa: "なぜ怒っているのですか？" },
   { scene: "気持ち・人", en: "sorry", ja: "すまなく思う、残念な", pos: "形容詞", example: "I'm sorry I'm late.", exampleJa: "遅れてごめんなさい。" },
   { scene: "気持ち・人", en: "nervous", ja: "緊張した", pos: "形容詞", example: "I was nervous before the speech.", exampleJa: "スピーチの前、私は緊張していました。" },
+  { scene: "気持ち・人", en: "excited", ja: "わくわくした", pos: "形容詞", example: "I am excited about the school trip.", exampleJa: "私は修学旅行にわくわくしています。" },
+  { scene: "気持ち・人", en: "worry", ja: "心配する", pos: "動詞", example: "Don't worry about it.", exampleJa: "それについては心配しないで。" },
 
   // ===== スポーツ・趣味 =====
   { scene: "スポーツ・趣味", en: "play", ja: "（スポーツ・楽器を）する、遊ぶ", pos: "動詞", example: "I play soccer after school.", exampleJa: "私は放課後サッカーをします。" },
@@ -134,6 +146,8 @@ const WORDS = [
   { scene: "スポーツ・趣味", en: "movie", ja: "映画", pos: "名詞", example: "Let's watch a movie this weekend.", exampleJa: "今週末、映画を見よう。" },
   { scene: "スポーツ・趣味", en: "swim", ja: "泳ぐ", pos: "動詞", example: "I can swim very fast.", exampleJa: "私はとても速く泳げます。" },
   { scene: "スポーツ・趣味", en: "sing", ja: "歌う", pos: "動詞", example: "We sing songs in music class.", exampleJa: "私たちは音楽の授業で歌を歌います。" },
+  { scene: "スポーツ・趣味", en: "dance", ja: "踊る", pos: "動詞", example: "She likes to dance to music.", exampleJa: "彼女は音楽に合わせて踊るのが好きです。" },
+  { scene: "スポーツ・趣味", en: "hobby", ja: "趣味", pos: "名詞", example: "My hobby is taking pictures.", exampleJa: "私の趣味は写真を撮ることです。" },
 
   // ===== 旅行・世界 =====
   { scene: "旅行・世界", en: "country", ja: "国", pos: "名詞", example: "Japan is a beautiful country.", exampleJa: "日本は美しい国です。" },
@@ -151,6 +165,8 @@ const WORDS = [
   { scene: "旅行・世界", en: "hotel", ja: "ホテル", pos: "名詞", example: "We stayed at a nice hotel.", exampleJa: "私たちはすてきなホテルに泊まりました。" },
   { scene: "旅行・世界", en: "passport", ja: "パスポート", pos: "名詞", example: "Don't forget your passport.", exampleJa: "パスポートを忘れないでね。" },
   { scene: "旅行・世界", en: "plane", ja: "飛行機", pos: "名詞", example: "We went to Okinawa by plane.", exampleJa: "私たちは飛行機で沖縄に行きました。" },
+  { scene: "旅行・世界", en: "festival", ja: "祭り", pos: "名詞", example: "We went to the summer festival.", exampleJa: "私たちは夏祭りに行きました。" },
+  { scene: "旅行・世界", en: "souvenir", ja: "おみやげ", pos: "名詞", example: "I bought a souvenir for my friend.", exampleJa: "私は友だちにおみやげを買いました。" },
 
   // ===== 時間・毎日 =====
   { scene: "時間・毎日", en: "morning", ja: "朝", pos: "名詞", example: "I get up at six in the morning.", exampleJa: "私は朝6時に起きます。" },
@@ -168,6 +184,8 @@ const WORDS = [
   { scene: "時間・毎日", en: "finish", ja: "終える", pos: "動詞", example: "I finished my homework.", exampleJa: "私は宿題を終えました。" },
   { scene: "時間・毎日", en: "late", ja: "遅く、遅れて", pos: "副詞", example: "Don't be late for school.", exampleJa: "学校に遅れないように。" },
   { scene: "時間・毎日", en: "already", ja: "すでに、もう", pos: "副詞", example: "I have already finished my homework.", exampleJa: "私はもう宿題を終えました。" },
+  { scene: "時間・毎日", en: "weekend", ja: "週末", pos: "名詞", example: "What did you do last weekend?", exampleJa: "先週末は何をしましたか？" },
+  { scene: "時間・毎日", en: "never", ja: "一度も〜ない", pos: "副詞", example: "I have never been to Hokkaido.", exampleJa: "私は一度も北海道に行ったことがありません。" },
 
   // ===== 体・健康 =====
   { scene: "体・健康", en: "head", ja: "頭", pos: "名詞", example: "I have a headache. My head hurts.", exampleJa: "頭痛がします。頭が痛い。" },
@@ -185,4 +203,6 @@ const WORDS = [
   { scene: "体・健康", en: "medicine", ja: "薬", pos: "名詞", example: "Take this medicine after meals.", exampleJa: "この薬は食後に飲んでください。" },
   { scene: "体・健康", en: "exercise", ja: "運動する、運動", pos: "動詞", example: "I exercise every morning.", exampleJa: "私は毎朝運動します。" },
   { scene: "体・健康", en: "strong", ja: "強い、丈夫な", pos: "形容詞", example: "He is tall and strong.", exampleJa: "彼は背が高くて丈夫です。" },
+  { scene: "体・健康", en: "tooth", ja: "歯", pos: "名詞", example: "Brush your teeth after meals.", exampleJa: "食後は歯をみがきなさい。" },
+  { scene: "体・健康", en: "fever", ja: "熱", pos: "名詞", example: "I have a fever today.", exampleJa: "今日は熱があります。" },
 ];
