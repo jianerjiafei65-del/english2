@@ -61,7 +61,8 @@
 
 /* ===== ベース ===== */
 * { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; overflow-x: clip; }
+body { overflow-x: clip; }
 body {
   margin: 0;
   min-height: 100vh;
@@ -197,9 +198,9 @@ button:focus-visible, select:focus-visible, .card:focus-visible {
 }
 
 /* ===== カード ===== */
-.card-area { perspective: 1400px; margin-bottom: 20px; }
+.card-area { --card-h: clamp(260px, 40vh, 400px); position: relative; perspective: 1400px; margin-bottom: 20px; }
 .card {
-  position: relative; width: 100%; height: clamp(260px, 40vh, 400px);
+  position: relative; width: 100%; height: var(--card-h); z-index: 1;
   transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(.2,.8,.2,1);
   cursor: pointer; outline: none;
 }
@@ -243,7 +244,60 @@ button:focus-visible, select:focus-visible, .card:focus-visible {
   font-size: 0.75rem; font-weight: 700; color: var(--accent);
 }
 .learned-mark svg { width: 16px; height: 16px; }
-.card.is-learned .learned-mark { display: inline-flex; }
+.card.is-learned .learned-mark, .page-snap.is-learned .learned-mark { display: inline-flex; }
+.card.no-anim { transition: none; }
+
+/* 後ろに重なったページ（単語帳の厚み） */
+.card-area::before, .card-area::after {
+  content: ""; position: absolute; left: 10px; right: 10px; top: 0; height: var(--card-h);
+  border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow);
+  transform: translateY(7px) scale(0.97); opacity: 0.7; z-index: 0;
+}
+.card-area::after { transform: translateY(13px) scale(0.94); opacity: 0.4; }
+.card-area:has(#emptyCard:not([hidden]))::before, .card-area:has(#emptyCard:not([hidden]))::after { display: none; }
+
+/* ===== ページめくり ===== */
+.page-turn {
+  position: absolute; left: 0; right: 0; top: 0; height: var(--card-h);
+  z-index: 5; perspective: 1800px; pointer-events: none;
+}
+.page-under, .page-snap { position: absolute; inset: 0; }
+.page-under .card-face, .page-snap .card-face { transform: none; }
+.page {
+  position: absolute; inset: 0; transform-style: preserve-3d;
+  transform-origin: left center;
+}
+.page-face {
+  position: absolute; inset: 0; border-radius: var(--radius); overflow: hidden;
+  -webkit-backface-visibility: hidden; backface-visibility: hidden;
+}
+.page-back {
+  transform: rotateY(180deg);
+  background: linear-gradient(90deg, var(--soft), var(--surface) 70%);
+  box-shadow: var(--shadow);
+}
+/* めくれるにつれて影が落ちる */
+.page-front::after {
+  content: ""; position: absolute; inset: 0; border-radius: var(--radius); pointer-events: none;
+  background: linear-gradient(90deg, rgba(0,0,0,0) 40%, rgba(0,0,0,0.18));
+  opacity: 0;
+}
+.page.turn-out { animation: turnOut 0.62s cubic-bezier(.45,.05,.3,1) forwards; }
+.page.turn-out .page-front::after { animation: shadeIn 0.62s ease-in forwards; }
+.page.turn-in { animation: turnIn 0.62s cubic-bezier(.45,.05,.3,1) forwards; }
+.page.turn-in .page-front::after { animation: shadeOut 0.62s ease-out forwards; }
+@keyframes turnOut {
+  0%   { transform: rotateY(0deg); opacity: 1; }
+  75%  { opacity: 1; }
+  100% { transform: rotateY(-178deg); opacity: 0; }
+}
+@keyframes turnIn {
+  0%   { transform: rotateY(-178deg); opacity: 0; }
+  25%  { opacity: 1; }
+  100% { transform: rotateY(0deg); opacity: 1; }
+}
+@keyframes shadeIn { to { opacity: 1; } }
+@keyframes shadeOut { from { opacity: 1; } to { opacity: 0; } }
 
 .card-answer { margin: auto 0 0; padding-top: 8px; }
 .card-word-back { margin: 0; }
@@ -352,7 +406,7 @@ button:focus-visible, select:focus-visible, .card:focus-visible {
 @media (min-width: 640px) {
   .scene-chips { margin: 0; padding: 2px 0; -webkit-mask-image: none; mask-image: none; flex-wrap: wrap; }
   .control-row { grid-template-columns: 1fr 1.4fr; }
-  .card { height: 380px; }
+  .card-area { --card-h: 380px; }
   .header-inner { padding-block: 14px; }
 }
 

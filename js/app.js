@@ -352,13 +352,81 @@
     render();
   };
 
+  // ===== ページめくり =====
+  const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  let turnLayer = null;
+  let turnTimer = null;
+
+  // いま見えているカードの面を、id を外して複製する
+  const snapshotFace = () => {
+    const face = el.card.querySelector(state.flipped ? ".card-back" : ".card-front").cloneNode(true);
+    face.querySelectorAll("[id]").forEach((n) => n.removeAttribute("id"));
+    face.classList.remove("card-back");
+    face.classList.add("card-front");
+    const wrap = document.createElement("div");
+    wrap.className = "page-snap" + (el.card.classList.contains("is-learned") ? " is-learned" : "");
+    wrap.appendChild(face);
+    return wrap;
+  };
+
+  const makePage = (snap) => {
+    const page = document.createElement("div");
+    page.className = "page";
+    const front = document.createElement("div");
+    front.className = "page-face page-front";
+    front.appendChild(snap);
+    const back = document.createElement("div");
+    back.className = "page-face page-back";
+    page.append(front, back);
+    return page;
+  };
+
+  const finishTurn = () => {
+    clearTimeout(turnTimer);
+    if (turnLayer) { turnLayer.remove(); turnLayer = null; }
+  };
+
+  // カードのめくれ（表/裏）を、アニメーションなしで表に戻す
+  const resetFlipInstantly = () => {
+    el.card.classList.add("no-anim");
+    render();
+    void el.card.offsetWidth;
+    el.card.classList.remove("no-anim");
+  };
+
+  const pageTurn = (dir, oldSnap) => {
+    finishTurn();
+    const layer = document.createElement("div");
+    layer.className = "page-turn";
+    if (dir === "next") {
+      // 今のページが左に向かってめくれ、下から次の単語が現れる
+      const page = makePage(oldSnap);
+      page.classList.add("turn-out");
+      layer.appendChild(page);
+    } else {
+      // 前のページが左から戻ってきて、今のページの上にかぶさる
+      const under = document.createElement("div");
+      under.className = "page-under";
+      under.appendChild(oldSnap);
+      const page = makePage(snapshotFace());
+      page.classList.add("turn-in");
+      layer.append(under, page);
+    }
+    el.cardArea.appendChild(layer);
+    turnLayer = layer;
+    turnTimer = setTimeout(finishTurn, 700);
+  };
+
   const move = (step) => {
     const list = filteredOrder();
     const next = state.index + step;
     if (next < 0 || next >= list.length) return;
+    finishTurn();
+    const oldSnap = reduceMotion ? null : snapshotFace();
     state.index = next;
     state.flipped = false;
-    render(step > 0 ? "slide-left" : "slide-right");
+    resetFlipInstantly();
+    if (oldSnap) pageTurn(step > 0 ? "next" : "prev", oldSnap);
     autoSpeak("show");
   };
 
