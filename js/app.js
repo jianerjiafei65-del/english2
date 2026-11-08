@@ -32,6 +32,71 @@
         pos: state.pos, scene: state.scene, learnedFilter: state.learnedFilter, learned: [...state.learned],
       }));
     } catch { /* 保存できなくても動作は続ける */ }
+    cloudSave();
+  };
+
+  // ===== ページ専用の保存場所（claude.ai で開いたとき） =====
+  // 「覚えた」の記録を、見ている人ごとの専用の場所（db の data/users/<id>/progress）にも保存する。
+  // Claude アプリの中などブラウザの保存領域が消える環境でも記録が残る。
+  // GitHub Pages などで開いたときは window.claude がないので、これまでどおりブラウザにだけ保存する。
+  let cloudRef = null;          // 保存先のドキュメント（使えないときは null）
+  let cloudLastSent = null;     // 最後に保存した内容（同じなら書き込まない）
+  let cloudWriting = false;
+  let cloudQueued = false;
+  const learnedKey = () => JSON.stringify([...state.learned].sort());
+
+  async function cloudSave() {
+    if (!cloudRef) return;
+    const key = learnedKey();
+    if (key === cloudLastSent) return;
+    if (cloudWriting) { cloudQueued = true; return; }   // 1つずつ順番に書き込む
+    cloudWriting = true;
+    try {
+      await cloudRef.set({ learned: JSON.parse(key), updatedAt: new Date().toISOString() });
+      cloudLastSent = key;
+    } catch {
+      /* 書き込めなくてもブラウザ側の保存は続く */
+    } finally {
+      cloudWriting = false;
+      if (cloudQueued) { cloudQueued = false; cloudSave(); }
+    }
+  }
+
+  const startCloudSync = async () => {
+    if (!window.claude || typeof window.claude.use !== "function") return;
+    try {
+      const [db, user] = await Promise.all([window.claude.use("db"), window.claude.use("user")]);
+      if (!db || !user) return;
+      const uid = await user.id();
+      if (!uid) return;
+      const ref = db.doc("data/users/" + uid + "/progress");
+      let first = true;
+      ref.onSnapshot((snap) => {
+        if (snap.metadata.hasPendingWrites) return;      // 自分の書き込み中は無視
+        const remote = snap.exists ? (snap.data().learned || []) : [];
+        if (first) {
+          if (snap.metadata.fromCache) return;          // 確定した内容を待つ
+          first = false;
+          // 初回：この端末の記録と保存先の記録を合わせる
+          const merged = new Set([...remote, ...state.learned]);
+          state.learned = merged;
+          cloudRef = ref;
+          cloudLastSent = JSON.stringify([...remote].sort());
+          save();      // 合わせた結果をブラウザと保存先の両方へ
+          render();
+          return;
+        }
+        // 2回目以降：ほかの端末で変えた記録を反映
+        const key = JSON.stringify([...remote].sort());
+        if (key === learnedKey()) return;
+        state.learned = new Set(remote);
+        cloudLastSent = key;
+        save();
+        render();
+      }, () => { cloudRef = null; });
+    } catch {
+      cloudRef = null;
+    }
   };
 
   // ===== 要素 =====
@@ -677,6 +742,7 @@
     el.posFilter.appendChild(opt);
   });
   render();
+  startCloudSync();
   // 保存されていたシーンのボタンを見える位置に
   const activeChip = el.sceneChips.querySelector(".chip.is-active");
   if (activeChip) el.sceneChips.scrollLeft = activeChip.offsetLeft - (el.sceneChips.clientWidth - activeChip.offsetWidth) / 2;
