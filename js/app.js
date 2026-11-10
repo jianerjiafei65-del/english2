@@ -224,6 +224,46 @@
     }, 60);
   };
 
+
+  // ===== 例文の中の答えの単語に下線 =====
+  const IRREGULAR = {
+    go: ["went", "goes", "gone"], come: ["came"], buy: ["bought"], eat: ["ate", "eaten"], write: ["wrote", "written"],
+    speak: ["spoke", "spoken"], swim: ["swam"], sing: ["sang", "sung"], run: ["ran"], feel: ["felt"], think: ["thought"],
+    catch: ["caught"], throw: ["threw", "thrown"], win: ["won"], lose: ["lost"], leave: ["left"], draw: ["drew", "drawn"],
+    sleep: ["slept"], grow: ["grew", "grown"], hurt: ["hurt"], read: ["read"], understand: ["understood"], drink: ["drank"],
+    begin: ["began", "begun"], wake: ["woke", "woken"], tooth: ["teeth"], leaf: ["leaves"], child: ["children"],
+    foot: ["feet"], man: ["men"], woman: ["women"], person: ["people"], fall: ["fell"], learn: ["learned", "learnt"],
+  };
+  const wordForms = (w) => {
+    const f = new Set([w, ...(IRREGULAR[w] || [])]);
+    if (w.includes(" ")) return [...f];
+    const last = w.slice(-1);
+    ["s", "es", "ed", "d", "ing", "er", "est"].forEach((x) => f.add(w + x));
+    if (last === "y" && !/[aeiou]/.test(w.slice(-2, -1))) { const b = w.slice(0, -1); ["ies", "ied", "ier", "iest"].forEach((x) => f.add(b + x)); }
+    if (last === "e") f.add(w.slice(0, -1) + "ing");
+    if (/[^aeiou][aeiou][bdgklmnprt]$/.test(w)) ["ed", "ing", "er"].forEach((x) => f.add(w + last + x));
+    if (last === "f") f.add(w.slice(0, -1) + "ves");
+    if (w.endsWith("fe")) f.add(w.slice(0, -2) + "ves");
+    return [...f].sort((a, b) => b.length - a.length);
+  };
+  const findWordInSentence = (sentence, word) => {
+    const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const alt = wordForms(word.toLowerCase()).map(esc).join("|");
+    // まずは単語そのもの、なければ headache のような複合語の先頭
+    const m = new RegExp("\\b(" + alt + ")\\b", "i").exec(sentence)
+      || new RegExp("\\b(" + alt + ")(?=ache)", "i").exec(sentence);
+    return m ? { start: m.index, end: m.index + m[0].length } : null;
+  };
+  const renderExample = (target, sentence, word) => {
+    target.textContent = "";
+    const hit = findWordInSentence(sentence, word);
+    if (!hit) { target.textContent = sentence; return; }
+    const u = document.createElement("u");
+    u.className = "example-target";
+    u.textContent = sentence.slice(hit.start, hit.end);
+    target.append(sentence.slice(0, hit.start), u, sentence.slice(hit.end));
+  };
+
   const sceneLabel = (id) => id;
   const sceneEn = (id) => (SCENES.find((x) => x.id === id) || {}).en || "";
 
@@ -310,7 +350,7 @@
     el.frontKana.hidden = !el.frontKana.textContent;
     el.backKana.hidden = !el.backKana.textContent;
     el.backSubKana.hidden = !el.backSubKana.textContent;
-    el.exampleEn.textContent = w.example;
+    renderExample(el.exampleEn, w.example, w.en);
     el.exampleJa.textContent = w.exampleJa;
 
     el.card.classList.toggle("is-flipped", state.flipped);

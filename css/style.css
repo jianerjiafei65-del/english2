@@ -492,3 +492,10 @@ button:focus-visible, select:focus-visible, .card:focus-visible {
   color: transparent; background: var(--soft); border-radius: 6px;
   -webkit-user-select: none; user-select: none;
 }
+
+/* ===== 例文の答えの単語に下線 ===== */
+.example-target {
+  text-decoration: underline; text-decoration-color: var(--accent);
+  text-decoration-thickness: 2px; text-underline-offset: 4px;
+}
+.example-en.is-hidden .example-target { text-decoration-color: transparent; }
