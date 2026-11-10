@@ -635,6 +635,11 @@
 
   // タップでめくる（「覚えた」は覚えたボタンだけで付ける）
   el.card.addEventListener("click", flip);
+  // 例文の英語はタップで隠す／表示する（カードはめくらない）
+  el.exampleEn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    el.exampleEn.classList.toggle("is-hidden");
+  });
   el.flipBtn.addEventListener("click", flip);
   el.prevBtn.addEventListener("click", () => move(-1));
   el.nextBtn.addEventListener("click", () => move(1));

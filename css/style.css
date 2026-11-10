@@ -485,3 +485,10 @@ button:focus-visible, select:focus-visible, .card:focus-visible {
   color: var(--muted); letter-spacing: 0.06em; line-height: 1.2;
 }
 .masked .word-kana { color: transparent; }
+
+/* ===== 例文の英語をタップで隠す ===== */
+.example-en { cursor: pointer; }
+.example-en.is-hidden {
+  color: transparent; background: var(--soft); border-radius: 6px;
+  -webkit-user-select: none; user-select: none;
+}
