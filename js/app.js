@@ -703,6 +703,22 @@
     state.listMode = b.dataset.listmode; save(); render();
   }));
   el.posFilter.addEventListener("change", (e) => { state.pos = e.target.value; resetFilterPosition(); });
+  // 検索したあと、単語カードと検索ボックス以外をタップしたら検索した文字を消す
+  // （押したボタンの動きが終わってから消し、表示中の単語はそのまま残す）
+  document.addEventListener("click", (e) => {
+    if (!state.query) return;
+    if (e.target.closest(".search") || e.target.closest("#cardArea")) return;
+    const list = filteredOrder();
+    const currentIdx = list.length ? list[state.index] : null;
+    state.query = "";
+    el.searchInput.value = "";
+    el.searchCount.hidden = true;
+    const all = filteredOrder();
+    const pos = currentIdx === null ? -1 : all.indexOf(currentIdx);
+    state.index = pos >= 0 ? pos : 0;
+    render();
+  });
+
   // キーボードの「検索」ボタン（Enter）でキーボードを閉じる
   el.searchInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); el.searchInput.blur(); }
