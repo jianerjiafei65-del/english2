@@ -274,10 +274,29 @@
   // 英単語・日本語訳・カタカナ読みから探す。ひらがなで入力してもカタカナ読みに当たるようにする
   const normalizeJa = (s) => (s || "").normalize("NFKC").trim().toLowerCase()
     .replace(/[\u3041-\u3096]/g, (c) => String.fromCharCode(c.charCodeAt(0) + 0x60));
+  // 訳を「、」で区切り、（〜を）などの補足や「〜」を外した言葉のリストにする
+  const jaTerms = (ja) => {
+    const base = (ja || "").replace(/（[^）]*）|\([^)]*\)/g, "").replace(/[〜～]/g, "");
+    return [ja, ...base.split(/[、,，]/)].map(normalizeJa).filter(Boolean);
+  };
+  const exactMatch = (w, q) => {
+    const nospace = (s) => s.replace(/\s+/g, "");
+    return normalizeJa(w.en) === q
+      || nospace(normalizeJa(w.kana)) === nospace(q)
+      || jaTerms(w.ja).includes(q);
+  };
+  const partialMatch = (w, q) =>
+    normalizeJa(w.en).includes(q) || normalizeJa(w.ja).includes(q) || normalizeJa(w.kana).includes(q);
+  // 完全に一致する単語があればそれだけ、なければ入力した言葉を含む単語を表示
+  let searchCache = { q: null, exact: false };
+  const searchMode = (q) => {
+    if (searchCache.q !== q) searchCache = { q, exact: WORDS.some((w) => exactMatch(w, q)) };
+    return searchCache.exact;
+  };
   const searchMatches = (w) => {
     const q = normalizeJa(state.query);
     if (!q) return true;
-    return normalizeJa(w.en).includes(q) || normalizeJa(w.ja).includes(q) || normalizeJa(w.kana).includes(q);
+    return searchMode(q) ? exactMatch(w, q) : partialMatch(w, q);
   };
 
   const matches = (i) => {
@@ -693,7 +712,10 @@
     const q = state.query.trim();
     if (q) {
       const n = filteredOrder().length;
-      el.searchCount.textContent = n ? `「${q}」の検索結果：${n}語` : `「${q}」に当てはまる単語はありません`;
+      const exact = searchMode(normalizeJa(q));
+      el.searchCount.textContent = !n ? `「${q}」に当てはまる単語はありません`
+        : exact ? `「${q}」の検索結果：${n}語`
+        : `「${q}」と一致する単語がないため、「${q}」を含む単語を表示：${n}語`;
     }
     el.searchCount.hidden = !q;
     state.index = 0; state.flipped = false;
