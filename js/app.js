@@ -21,6 +21,7 @@
     learned: new Set(saved.learned || []),
     order: WORDS.map((_, i) => i),        // 出題順（WORDS のインデックス）
     index: 0,
+    query: "",                            // 日本語検索の文字（保存しない）
     flipped: false,
   };
 
@@ -107,6 +108,7 @@
     listModeBtns: document.querySelectorAll(".list-mode-btn"),
     cardView: $("cardView"), listView: $("listView"),
     posFilter: $("posFilter"), learnedFilter: $("learnedFilter"),
+    searchInput: $("searchInput"), searchCount: $("searchCount"),
     learnedCount: $("learnedCount"), totalCount: $("totalCount"), progressFill: $("progressFill"),
     sceneChips: $("sceneChips"), progressScope: $("progressScope"),
     frontScene: $("frontScene"), backScene: $("backScene"),
@@ -268,9 +270,20 @@
   const sceneEn = (id) => (SCENES.find((x) => x.id === id) || {}).en || "";
 
   // ===== 絞り込み =====
+  // ===== 日本語検索 =====
+  // 日本語訳とカタカナ読みから探す。ひらがなで入力してもカタカナ読みに当たるようにする
+  const normalizeJa = (s) => (s || "").normalize("NFKC").trim().toLowerCase()
+    .replace(/[\u3041-\u3096]/g, (c) => String.fromCharCode(c.charCodeAt(0) + 0x60));
+  const searchMatches = (w) => {
+    const q = normalizeJa(state.query);
+    if (!q) return true;
+    return normalizeJa(w.ja).includes(q) || normalizeJa(w.kana).includes(q);
+  };
+
   const matches = (i) => {
     const w = WORDS[i];
-    if (state.scene !== "all" && w.scene !== state.scene) return false;
+    if (state.query) { if (!searchMatches(w)) return false; }   // 検索中はすべてのシーンから探す
+    else if (state.scene !== "all" && w.scene !== state.scene) return false;
     if (state.pos !== "all" && w.pos !== state.pos) return false;
     const isLearned = state.learned.has(w.en);
     if (state.learnedFilter === "learned" && !isLearned) return false;
@@ -603,7 +616,7 @@
     let notice = "";
     if (!list.length) return;
     if (next < 0 || next >= list.length) {
-      if (state.scene === "all") {
+      if (state.scene === "all" || state.query) {
         // すべて表示のときは、最後の次は最初へ（最初の前は最後へ）
         next = (next + list.length) % list.length;
         notice = step > 0 ? "最初の単語に戻りました" : "最後の単語へ移動しました";
@@ -671,6 +684,17 @@
     state.listMode = b.dataset.listmode; save(); render();
   }));
   el.posFilter.addEventListener("change", (e) => { state.pos = e.target.value; resetFilterPosition(); });
+  el.searchInput.addEventListener("input", (e) => {
+    state.query = e.target.value;
+    const q = state.query.trim();
+    if (q) {
+      const n = filteredOrder().length;
+      el.searchCount.textContent = n ? `「${q}」の検索結果：${n}語` : `「${q}」に当てはまる単語はありません`;
+    }
+    el.searchCount.hidden = !q;
+    state.index = 0; state.flipped = false;
+    render();
+  });
   el.learnedFilter.addEventListener("change", (e) => { state.learnedFilter = e.target.value; resetFilterPosition(); });
 
   // タップでめくる（「覚えた」は覚えたボタンだけで付ける）
