@@ -684,6 +684,10 @@
     state.listMode = b.dataset.listmode; save(); render();
   }));
   el.posFilter.addEventListener("change", (e) => { state.pos = e.target.value; resetFilterPosition(); });
+  // キーボードの「検索」ボタン（Enter）でキーボードを閉じる
+  el.searchInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); el.searchInput.blur(); }
+  });
   el.searchInput.addEventListener("input", (e) => {
     state.query = e.target.value;
     const q = state.query.trim();
