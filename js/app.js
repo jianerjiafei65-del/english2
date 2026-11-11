@@ -271,13 +271,13 @@
 
   // ===== 絞り込み =====
   // ===== 日本語検索 =====
-  // 日本語訳とカタカナ読みから探す。ひらがなで入力してもカタカナ読みに当たるようにする
+  // 英単語・日本語訳・カタカナ読みから探す。ひらがなで入力してもカタカナ読みに当たるようにする
   const normalizeJa = (s) => (s || "").normalize("NFKC").trim().toLowerCase()
     .replace(/[\u3041-\u3096]/g, (c) => String.fromCharCode(c.charCodeAt(0) + 0x60));
   const searchMatches = (w) => {
     const q = normalizeJa(state.query);
     if (!q) return true;
-    return normalizeJa(w.ja).includes(q) || normalizeJa(w.kana).includes(q);
+    return normalizeJa(w.en).includes(q) || normalizeJa(w.ja).includes(q) || normalizeJa(w.kana).includes(q);
   };
 
   const matches = (i) => {
